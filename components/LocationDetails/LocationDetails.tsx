@@ -17,7 +17,6 @@ const LocationDetails = ({ item }: LocationDetailsProps) => {
             <p>Phone Number: {item.phoneNumber}</p>
             <p>Offer Description: {item.offerDesc}</p>
             <p>Offer Source: {item.offerSource}</p>
-            <p>Do you have to be eligible for SNAP? {item.snapRequired ? "yes" : "no"}</p>
             <p>website: <a target="_blank">{item.website}</a></p>
             {item.donationLink && <p>Donation Link: <a target="_blank">{item.donationLink}</a></p>}
             {item.volunteerLink && <p>Volunteer Link: <a target="_blank">{item.volunteerLink}</a></p>}

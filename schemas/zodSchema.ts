@@ -8,7 +8,7 @@ const timeRangeSchema = z.object({
 const hoursSchema = z.array(timeRangeSchema).default([]);
 
 const LocationSchema = z.object({
-  id: z.number(),
+  id: z.string(), // UUIDs are returned from supabase as strings
   name: z.string(),
   address: z.string(),
   address2: z.string().optional(),
@@ -19,7 +19,6 @@ const LocationSchema = z.object({
   longitude: z.number(),
   offerDesc: z.string(),
   offerSource: z.string(),
-  snapRequired: z.boolean(),
   website: z.url().optional(),
   donationLink: z.url().optional(),
   deliveryAvailable: z.boolean(),

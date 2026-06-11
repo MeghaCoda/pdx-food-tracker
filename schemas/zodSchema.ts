@@ -38,5 +38,10 @@ const LocationSchema = z.object({
   notes: z.string().optional()
 });
 
-export { LocationSchema };
+const LocationInputSchema = LocationSchema.omit({ id: true, lastUpdated: true });
+const LocationUpdateSchema = LocationInputSchema.partial();
+
+export { LocationSchema, LocationInputSchema, LocationUpdateSchema };
 export type Location = z.infer<typeof LocationSchema>;
+export type LocationInput = z.infer<typeof LocationInputSchema>;
+export type LocationUpdate = z.infer<typeof LocationUpdateSchema>;

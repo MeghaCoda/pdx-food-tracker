@@ -1,0 +1,279 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "PDX Food Tracker API",
+    "version": "1.0.0",
+    "description": "API for managing food resource locations in Portland, OR"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local development"
+    }
+  ],
+  "paths": {
+    "/api/locations": {
+      "get": {
+        "summary": "List all active locations",
+        "operationId": "getLocations",
+        "responses": {
+          "200": {
+            "description": "Array of active locations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Location" }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new location",
+        "operationId": "createLocation",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/LocationInput" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Location created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Location" }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/api/locations/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "string", "format": "uuid" },
+          "description": "Location UUID"
+        }
+      ],
+      "put": {
+        "summary": "Update a location",
+        "operationId": "updateLocation",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/LocationUpdate" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated location",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Location" }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a location",
+        "operationId": "deleteLocation",
+        "description": "Soft-deletes the location by setting it inactive",
+        "responses": {
+          "204": {
+            "description": "Location deleted"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "TimeRange": {
+        "type": "object",
+        "required": ["start", "end"],
+        "properties": {
+          "start": {
+            "type": "string",
+            "pattern": "^\\d{2}:\\d{2}$",
+            "example": "09:00"
+          },
+          "end": {
+            "type": "string",
+            "pattern": "^\\d{2}:\\d{2}$",
+            "example": "17:00"
+          }
+        }
+      },
+      "Hours": {
+        "type": "object",
+        "required": ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"],
+        "properties": {
+          "monday":    { "type": "array", "items": { "$ref": "#/components/schemas/TimeRange" } },
+          "tuesday":   { "type": "array", "items": { "$ref": "#/components/schemas/TimeRange" } },
+          "wednesday": { "type": "array", "items": { "$ref": "#/components/schemas/TimeRange" } },
+          "thursday":  { "type": "array", "items": { "$ref": "#/components/schemas/TimeRange" } },
+          "friday":    { "type": "array", "items": { "$ref": "#/components/schemas/TimeRange" } },
+          "saturday":  { "type": "array", "items": { "$ref": "#/components/schemas/TimeRange" } },
+          "sunday":    { "type": "array", "items": { "$ref": "#/components/schemas/TimeRange" } }
+        }
+      },
+      "Location": {
+        "type": "object",
+        "required": [
+          "id", "name", "address", "city", "state", "zipCode",
+          "latitude", "longitude", "offerDesc", "offerSource",
+          "deliveryAvailable", "hours", "infoLastVerified", "lastUpdated"
+        ],
+        "properties": {
+          "id":                { "type": "string", "format": "uuid" },
+          "name":              { "type": "string" },
+          "address":           { "type": "string" },
+          "address2":          { "type": "string" },
+          "city":              { "type": "string" },
+          "state":             { "type": "string" },
+          "zipCode":           { "type": "string" },
+          "latitude":          { "type": "number" },
+          "longitude":         { "type": "number" },
+          "offerDesc":         { "type": "string" },
+          "offerSource":       { "type": "string" },
+          "website":           { "type": "string", "format": "uri" },
+          "donationLink":      { "type": "string", "format": "uri" },
+          "deliveryAvailable": { "type": "boolean" },
+          "volunteerLink":     { "type": "string", "format": "uri" },
+          "phoneNumber":       { "type": "string" },
+          "hours":             { "$ref": "#/components/schemas/Hours" },
+          "infoLastVerified":  { "type": "string" },
+          "lastUpdated":       { "type": "string" },
+          "notes":             { "type": "string" }
+        }
+      },
+      "LocationInput": {
+        "description": "Location body for creation (id and lastUpdated are server-generated)",
+        "type": "object",
+        "required": [
+          "name", "address", "city", "state", "zipCode",
+          "latitude", "longitude", "offerDesc", "offerSource",
+          "deliveryAvailable", "hours", "infoLastVerified"
+        ],
+        "properties": {
+          "name":              { "type": "string" },
+          "address":           { "type": "string" },
+          "address2":          { "type": "string" },
+          "city":              { "type": "string" },
+          "state":             { "type": "string" },
+          "zipCode":           { "type": "string" },
+          "latitude":          { "type": "number" },
+          "longitude":         { "type": "number" },
+          "offerDesc":         { "type": "string" },
+          "offerSource":       { "type": "string" },
+          "website":           { "type": "string", "format": "uri" },
+          "donationLink":      { "type": "string", "format": "uri" },
+          "deliveryAvailable": { "type": "boolean" },
+          "volunteerLink":     { "type": "string", "format": "uri" },
+          "phoneNumber":       { "type": "string" },
+          "hours":             { "$ref": "#/components/schemas/Hours" },
+          "infoLastVerified":  { "type": "string" },
+          "notes":             { "type": "string" }
+        }
+      },
+      "LocationUpdate": {
+        "description": "Partial location body for updates — all fields optional",
+        "type": "object",
+        "properties": {
+          "name":              { "type": "string" },
+          "address":           { "type": "string" },
+          "address2":          { "type": "string" },
+          "city":              { "type": "string" },
+          "state":             { "type": "string" },
+          "zipCode":           { "type": "string" },
+          "latitude":          { "type": "number" },
+          "longitude":         { "type": "number" },
+          "offerDesc":         { "type": "string" },
+          "offerSource":       { "type": "string" },
+          "website":           { "type": "string", "format": "uri" },
+          "donationLink":      { "type": "string", "format": "uri" },
+          "deliveryAvailable": { "type": "boolean" },
+          "volunteerLink":     { "type": "string", "format": "uri" },
+          "phoneNumber":       { "type": "string" },
+          "hours":             { "$ref": "#/components/schemas/Hours" },
+          "infoLastVerified":  { "type": "string" },
+          "notes":             { "type": "string" }
+        }
+      },
+      "ValidationErrorDetail": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "formErrors": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "fieldErrors": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": { "type": "string" }
+        }
+      }
+    },
+    "responses": {
+      "ValidationError": {
+        "description": "Request body failed schema validation",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ValidationErrorDetail" }
+          }
+        }
+      },
+      "InternalError": {
+        "description": "Unexpected server error",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+          }
+        }
+      }
+    }
+  }
+}

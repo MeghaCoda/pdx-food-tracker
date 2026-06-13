@@ -36,13 +36,15 @@ const LocationSchema = z.object({
   infoLastVerified: z.string(),
   lastUpdated: z.string(),
   notes: z.string().optional(),
-  verificationStatus: z.enum(['pending', 'confirmed', 'needs-review', 'unverifiable']),
+  verificationStatus: z.enum(['pending', 'confirmed', 'unverified']),
   ownerClaimed: z.boolean().nullable().optional(),
   ownerVerifiedAt: z.string().nullable().optional(),
 });
 
-const LocationInputSchema = LocationSchema.omit({ id: true, lastUpdated: true });
-const LocationUpdateSchema = LocationInputSchema.partial();
+const LocationInputSchema = LocationSchema.omit({ id: true, lastUpdated: true }).extend({
+  verificationStatus: z.enum(['pending', 'confirmed', 'unverified']).default('unverified'),
+});
+const LocationUpdateSchema = LocationSchema.omit({ id: true, lastUpdated: true }).partial();
 
 const VerificationEventSchema = z.object({
   id: z.string(),

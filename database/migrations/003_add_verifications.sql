@@ -14,8 +14,8 @@ ALTER TABLE locations DROP COLUMN IF EXISTS verified_by;
 
 -- Add new verification summary columns to locations
 ALTER TABLE locations
-  ADD COLUMN verification_status text NOT NULL DEFAULT 'pending'
-    CHECK (verification_status IN ('pending', 'confirmed', 'needs-review', 'unverifiable'));
+  ADD COLUMN verification_status text NOT NULL DEFAULT 'unverified'
+    CHECK (verification_status IN ('pending', 'confirmed', 'unverified'));
 
 ALTER TABLE locations ADD COLUMN owner_claimed     boolean     DEFAULT false;
 ALTER TABLE locations ADD COLUMN owner_verified_at timestamptz;

@@ -175,7 +175,7 @@
           "infoLastVerified":     { "type": "string" },
           "lastUpdated":          { "type": "string" },
           "notes":                { "type": "string" },
-          "verificationStatus":   { "type": "string", "enum": ["pending", "confirmed", "needs-review", "unverifiable"] },
+          "verificationStatus":   { "type": "string", "enum": ["pending", "confirmed", "unverified"] },
           "ownerClaimed":         { "type": "boolean", "nullable": true },
           "ownerVerifiedAt":      { "type": "string", "nullable": true }
         }
@@ -186,8 +186,7 @@
         "required": [
           "name", "address", "city", "state", "zipCode",
           "latitude", "longitude", "offerDesc", "offerSource",
-          "deliveryAvailable", "hours", "infoLastVerified",
-          "verificationStatus"
+          "deliveryAvailable", "hours", "infoLastVerified"
         ],
         "properties": {
           "name":                 { "type": "string" },
@@ -208,7 +207,7 @@
           "hours":                { "$ref": "#/components/schemas/Hours" },
           "infoLastVerified":     { "type": "string" },
           "notes":                { "type": "string" },
-          "verificationStatus":   { "type": "string", "enum": ["pending", "confirmed", "needs-review", "unverifiable"] },
+          "verificationStatus":   { "type": "string", "enum": ["pending", "confirmed", "unverified"], "default": "unverified" },
           "ownerClaimed":         { "type": "boolean", "nullable": true },
           "ownerVerifiedAt":      { "type": "string", "nullable": true }
         }
@@ -235,7 +234,7 @@
           "hours":                { "$ref": "#/components/schemas/Hours" },
           "infoLastVerified":     { "type": "string" },
           "notes":                { "type": "string" },
-          "verificationStatus":   { "type": "string", "enum": ["pending", "confirmed", "needs-review", "unverifiable"] },
+          "verificationStatus":   { "type": "string", "enum": ["pending", "confirmed", "unverified"] },
           "ownerClaimed":         { "type": "boolean", "nullable": true },
           "ownerVerifiedAt":      { "type": "string", "nullable": true }
         }

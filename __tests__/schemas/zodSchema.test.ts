@@ -96,7 +96,7 @@ describe('LocationSchema', () => {
   })
 
   it('accepts all valid verificationStatus values', () => {
-    for (const status of ['pending', 'confirmed', 'needs-review', 'unverifiable'] as const) {
+    for (const status of ['pending', 'confirmed', 'unverified'] as const) {
       expect(LocationSchema.safeParse({ ...mockLocation, verificationStatus: status }).success).toBe(true)
     }
   })
@@ -127,6 +127,15 @@ describe('LocationInputSchema', () => {
   it('rejects missing required name', () => {
     const { id: _id, lastUpdated: _lastUpdated, name: _name, ...rest } = mockLocation
     expect(LocationInputSchema.safeParse(rest).success).toBe(false)
+  })
+
+  it('defaults verificationStatus to unverified when omitted', () => {
+    const { id: _id, lastUpdated: _lastUpdated, verificationStatus: _vs, ...rest } = mockLocation
+    const result = LocationInputSchema.safeParse(rest)
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.verificationStatus).toBe('unverified')
+    }
   })
 })
 

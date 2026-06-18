@@ -48,6 +48,24 @@ describe('fetchPhysicalLocations', () => {
     expect(mockFrom).toHaveBeenCalledWith('physical_locations')
   })
 
+  it('selects with resource_hours join', async () => {
+    const builder = makeBuilder({ data: [mockDbRow], error: null })
+    mockFrom.mockReturnValue(builder)
+
+    await fetchPhysicalLocations()
+
+    expect(builder.select).toHaveBeenCalledWith('*, resource_hours(*)')
+  })
+
+  it('filters by approved verification_status', async () => {
+    const builder = makeBuilder({ data: [mockDbRow], error: null })
+    mockFrom.mockReturnValue(builder)
+
+    await fetchPhysicalLocations()
+
+    expect(builder.eq).toHaveBeenCalledWith('verification_status', 'approved')
+  })
+
   it('throws when Supabase returns an error', async () => {
     mockFrom.mockReturnValue(makeBuilder({ data: null, error: { message: 'DB error' } }))
 

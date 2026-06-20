@@ -94,6 +94,7 @@ export type OfferLocation = {
   latitude: number | null;
   longitude: number | null;
   phone_number: string | null;
+  notes: string | null;
   verification_status: string | null;
 };
 
@@ -107,6 +108,7 @@ export type OfferDetail = {
   verification_status: string | null;
   expires_at: string | null;
   is_active: boolean | null;
+  notes: string | null;
   locations: OfferLocation[];
 };
 
@@ -130,6 +132,7 @@ export async function getOfferWithLocations(id: string): Promise<OfferDetail | n
     verification_status: o.verification_status ?? null,
     expires_at: o.expires_at ?? null,
     is_active: o.is_active ?? null,
+    notes: o.notes ?? null,
     locations: (locRes.data ?? []) as OfferLocation[],
   };
 }
@@ -147,6 +150,7 @@ export async function updateOffer(
     expires_at?: string | null;
     is_active?: boolean | null;
     verification_status?: string | null;
+    notes?: string | null;
   }
 ): Promise<UpdateOfferResult> {
   const user = await requireAdmin();
@@ -169,6 +173,7 @@ export type CSVOfferRow = {
   benefits?: string[];
   expires_at?: string;
   is_active?: boolean;
+  notes?: string;
   location?: {
     address: string;
     address2?: string;
@@ -177,6 +182,7 @@ export type CSVOfferRow = {
     zip_code: string;
     neighborhood?: string;
     phone_number?: string;
+    notes?: string;
   };
 };
 
@@ -207,6 +213,7 @@ export async function uploadOffers(
         benefits: row.benefits ?? null,
         expires_at: row.expires_at ?? null,
         is_active: row.is_active ?? null,
+        notes: row.notes ?? null,
         verification_status: 'pending',
         created_by: adminUserId,
       })
@@ -227,6 +234,7 @@ export async function uploadOffers(
         zip_code: row.location.zip_code,
         neighborhood: row.location.neighborhood ?? null,
         phone_number: row.location.phone_number ?? null,
+        notes: row.location.notes ?? null,
         verification_status: 'pending',
       });
       if (locError) {

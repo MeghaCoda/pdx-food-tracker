@@ -144,6 +144,7 @@ function parseOffersCSV(text: string): ParseResult {
           zip_code,
           neighborhood: get(rawRow, 'neighborhood') || undefined,
           phone_number: get(rawRow, 'phone_number') || undefined,
+          notes: get(rawRow, 'location_notes') || undefined,
         };
       }
     }
@@ -159,6 +160,7 @@ function parseOffersCSV(text: string): ParseResult {
         benefits,
         expires_at: get(rawRow, 'expires_at') || undefined,
         is_active,
+        notes: get(rawRow, 'notes') || undefined,
         location,
       });
     }
@@ -221,8 +223,8 @@ export function UploadForm({ adminUserId }: { adminUserId: string }) {
 function downloadExampleCSV() {
   const headers = [
     'name', 'description', 'offer_desc', 'offer_source', 'benefits',
-    'expires_at', 'is_active', 'address', 'address2', 'city', 'state',
-    'zip_code', 'neighborhood', 'phone_number',
+    'expires_at', 'is_active', 'notes', 'address', 'address2', 'city', 'state',
+    'zip_code', 'neighborhood', 'phone_number', 'location_notes',
   ];
 
   const rows: string[][] = [
@@ -234,7 +236,8 @@ function downloadExampleCSV() {
       'free_food,snap_accepted',
       '',
       'true',
-      '7900 NE 33rd Dr', '', 'Portland', 'OR', '97211', 'Parkrose', '503-282-0555',
+      '',
+      '7900 NE 33rd Dr', '', 'Portland', 'OR', '97211', 'Parkrose', '503-282-0555', '',
     ],
     [
       'SE Uplift Community Fridge',
@@ -244,7 +247,8 @@ function downloadExampleCSV() {
       'free_food',
       '2026-12-31',
       'true',
-      '3534 SE Main St', '', 'Portland', 'OR', '97214', 'Buckman', '',
+      'Outdoor fridge; check social media for restocking schedule',
+      '3534 SE Main St', '', 'Portland', 'OR', '97214', 'Buckman', '', '',
     ],
     [
       'Eastside Diner Kids Night',
@@ -254,7 +258,8 @@ function downloadExampleCSV() {
       'kids_eat_free,discounted_food',
       '2026-08-31',
       'true',
-      '2337 NE Glisan St', '', 'Portland', 'OR', '97232', 'Kerns', '503-555-0142',
+      '',
+      '2337 NE Glisan St', '', 'Portland', 'OR', '97232', 'Kerns', '503-555-0142', 'Dine-in only; offer valid 5–9pm',
     ],
     [
       'Oregon SNAP Benefits',
@@ -264,7 +269,8 @@ function downloadExampleCSV() {
       'snap_accepted,free_food',
       '',
       'true',
-      '', '', '', '', '', '', '',
+      'Income limits apply; see website for eligibility details',
+      '', '', '', '', '', '', '', '',
     ],
     [
       'Meals on Wheels People',
@@ -274,7 +280,8 @@ function downloadExampleCSV() {
       'free_food,senior_discount',
       '',
       'true',
-      '', '', '', '', '', '', '',
+      '',
+      '', '', '', '', '', '', '', '',
     ],
   ];
 
@@ -336,8 +343,8 @@ function CSVUploadPanel({ adminUserId, onBack }: { adminUserId: string; onBack: 
         <p className="mt-1 text-sm text-muted-foreground">
           Upload a CSV with columns:{' '}
           <code className="text-xs bg-muted px-1 py-0.5 rounded">
-            name, description, offer_desc, offer_source, benefits, expires_at, is_active,
-            address, address2, city, state, zip_code, neighborhood, phone_number
+            name, description, offer_desc, offer_source, benefits, expires_at, is_active, notes,
+            address, address2, city, state, zip_code, neighborhood, phone_number, location_notes
           </code>
           . Separate multiple benefit values with commas.
           If any location field is present, address, city, state, and zip_code are all required.
@@ -439,6 +446,7 @@ type EditState = {
   expires_at: string;
   is_active: string;
   verification_status: string;
+  notes: string;
 };
 
 function offerToEditState(offer: OfferDetail): EditState {
@@ -451,6 +459,7 @@ function offerToEditState(offer: OfferDetail): EditState {
     expires_at: offer.expires_at ?? '',
     is_active: offer.is_active == null ? '' : String(offer.is_active),
     verification_status: offer.verification_status ?? '',
+    notes: offer.notes ?? '',
   };
 }
 
@@ -517,6 +526,7 @@ function ModifyOfferPanel({ onBack }: { onBack: () => void }) {
           : editState.is_active === 'false' ? false
           : null,
         verification_status: editState.verification_status || null,
+        notes: editState.notes || null,
       });
       setSaveResult(res);
     });
@@ -642,6 +652,11 @@ function ModifyOfferPanel({ onBack }: { onBack: () => void }) {
                 <option value="rejected">Rejected</option>
               </select>
             </div>
+
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="edit-notes">Notes</Label>
+              <Input id="edit-notes" value={editState.notes} onChange={set('notes')} />
+            </div>
           </fieldset>
 
           <Button onClick={handleSave} disabled={isPending || !editState.name}>
@@ -669,6 +684,9 @@ function ModifyOfferPanel({ onBack }: { onBack: () => void }) {
                     )}
                     {loc.phone_number && (
                       <p className="text-muted-foreground">{loc.phone_number}</p>
+                    )}
+                    {loc.notes && (
+                      <p className="text-muted-foreground">{loc.notes}</p>
                     )}
                     <p className="mt-1 text-xs text-muted-foreground">
                       Status: {loc.verification_status ?? 'not set'}

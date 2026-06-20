@@ -8,7 +8,7 @@ import { signOut } from './actions';
 type Session =
   | { status: 'unauthenticated' }
   | { status: 'unauthorized' }
-  | { status: 'admin'; email: string };
+  | { status: 'admin'; email: string; userId: string };
 
 async function getSession(): Promise<Session> {
   const cookieStore = await cookies();
@@ -22,19 +22,9 @@ async function getSession(): Promise<Session> {
   const { data: { user }, error } = await authClient.auth.getUser(token);
   if (error || !user) return { status: 'unauthenticated' };
 
-  const adminClient = createClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_SECRET_KEY!,
-  );
-  const { data } = await adminClient
-    .from('users')
-    .select('role')
-    .eq('id', user.id)
-    .single();
+  if (user.app_metadata?.role !== 'admin') return { status: 'unauthorized' };
 
-  if (!data || data.role !== 'admin') return { status: 'unauthorized' };
-
-  return { status: 'admin', email: user.email! };
+  return { status: 'admin', email: user.email!, userId: user.id };
 }
 
 export default async function AdminUploadPage() {
@@ -84,7 +74,7 @@ export default async function AdminUploadPage() {
         </div>
       )}
 
-      {session.status === 'admin' && <UploadForm />}
+      {session.status === 'admin' && <UploadForm adminUserId={session.userId} />}
     </main>
   );
 }

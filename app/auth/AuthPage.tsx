@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import type { User } from '@supabase/supabase-js';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -194,10 +195,10 @@ function SignedInView() {
   );
 }
 
-export function AuthPage({ isSignedIn }: { isSignedIn: boolean }) {
+export function AuthPage({ user }: { user: User | null }) {
   const [view, setView] = useState<View>('signin');
 
-  if (isSignedIn) {
+  if (user) {
     return <SignedInView />;
   }
 

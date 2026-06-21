@@ -19,7 +19,7 @@ jobs:
         run: |
           pg_dump \
             --host=db.rfiukmdsbcofrepnbigi.supabase.co \
-            --port=6543 \
+            --port=5432 \
             --username=postgres \
             --dbname=postgres \
             --no-password \

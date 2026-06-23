@@ -9,7 +9,7 @@ function makeAuthClient() {
 }
 
 function makeAdminClient() {
-  return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_SECRET_KEY!);
+  return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SECRET_KEY!);
 }
 
 function makeUserClient(token: string) {
@@ -288,6 +288,50 @@ export async function setLocationVerificationStatus(
 }
 
 // ============================================================
+// Geocoding
+// ============================================================
+
+const REJECTED_ACCURACY_TYPES = new Set([
+  'street_center', 'place', 'county', 'state', 'country',
+]);
+
+type GeocodeResult = {
+  lat: number;
+  lng: number;
+  accuracy: number;
+  accuracy_type: string;
+};
+
+async function geocodeAddress(
+  address: string,
+  city: string,
+  state: string,
+  zip_code: string,
+): Promise<GeocodeResult> {
+  const apiKey = process.env.GEOCODIO_API_KEY;
+  if (!apiKey) throw new Error('GEOCODIO_API_KEY is not configured');
+
+  const q = encodeURIComponent(`${address}, ${city}, ${state} ${zip_code}`);
+  const res = await fetch(`https://api.geocod.io/v1.7/geocode?q=${q}&api_key=${apiKey}`);
+  if (!res.ok) throw new Error(`Geocodio API error: ${res.status} ${res.statusText}`);
+
+  const data = await res.json() as {
+    results?: Array<{
+      location: { lat: number; lng: number };
+      accuracy: number;
+      accuracy_type: string;
+    }>;
+  };
+
+  if (!data.results || data.results.length === 0) {
+    throw new Error('no results returned');
+  }
+
+  const { location, accuracy, accuracy_type } = data.results[0];
+  return { lat: location.lat, lng: location.lng, accuracy, accuracy_type };
+}
+
+// ============================================================
 // CSV batch upload
 // ============================================================
 
@@ -335,8 +379,12 @@ export async function uploadOffers(
   const db = makeUserClient(session.token);
   let created = 0;
   let skipped = 0;
+  let geocodeCount = 0;
 
-  for (const row of rows) {
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
+    const csvRow = i + 2; // row 1 is the header
+
     const { data: existingResource } = await db
       .from('resources')
       .select('id')
@@ -347,6 +395,8 @@ export async function uploadOffers(
       skipped++;
       continue;
     }
+
+    let geocoded: GeocodeResult | null = null;
 
     if (row.location) {
       let locQuery = db
@@ -363,6 +413,47 @@ export async function uploadOffers(
       if (existingLoc) {
         skipped++;
         continue;
+      }
+
+      if (geocodeCount > 0) {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+      geocodeCount++;
+
+      const addrLabel = `${row.location.address}, ${row.location.city}, ${row.location.state} ${row.location.zip_code}`;
+      try {
+        geocoded = await geocodeAddress(
+          row.location.address,
+          row.location.city,
+          row.location.state,
+          row.location.zip_code,
+        );
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        return {
+          created,
+          skipped,
+          error: `Row ${csvRow}: geocoding failed for "${addrLabel}" — ${msg}`,
+        };
+      }
+
+      console.log(
+        `[geocode] row ${csvRow} "${addrLabel}" → accuracy=${geocoded.accuracy} type=${geocoded.accuracy_type}`,
+      );
+
+      if (geocoded.accuracy < 0.8) {
+        return {
+          created,
+          skipped,
+          error: `Row ${csvRow}: geocoding accuracy too low (${geocoded.accuracy}) for "${addrLabel}" — fix the address and re-upload`,
+        };
+      }
+      if (REJECTED_ACCURACY_TYPES.has(geocoded.accuracy_type)) {
+        return {
+          created,
+          skipped,
+          error: `Row ${csvRow}: geocoding accuracy type "${geocoded.accuracy_type}" is not precise enough for "${addrLabel}" — fix the address and re-upload`,
+        };
       }
     }
 
@@ -398,6 +489,8 @@ export async function uploadOffers(
         neighborhood: row.location.neighborhood ?? null,
         phone_number: row.location.phone_number ?? null,
         notes: row.location.notes ?? null,
+        latitude: geocoded?.lat ?? null,
+        longitude: geocoded?.lng ?? null,
         verification_status: 'pending',
         created_by: adminUserId,
       }).select('id').single();

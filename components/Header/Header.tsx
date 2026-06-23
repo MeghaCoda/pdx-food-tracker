@@ -1,11 +1,7 @@
-import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { SignOutButton } from './SignOutButton';
 
-export async function Header() {
-  const cookieStore = await cookies();
-  const isSignedIn = !!cookieStore.get('auth_token')?.value;
-
+export function Header({ isSignedIn }: { isSignedIn: boolean }) {
   return (
     <header className="flex items-center justify-between px-6 py-4 border-b border-border">
       <Link href="/" className="text-2xl font-semibold">

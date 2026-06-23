@@ -44,7 +44,7 @@ export const UsersSchema = z.object({
   username: z.string().min(1),
   email: z.string().email(),
   role: UserRoleSchema,
-  created_at: z.string().datetime().nullable().optional(),
+  created_at: z.string().datetime({ offset: true }).nullable().optional(),
 });
 
 export type User = z.infer<typeof UsersSchema>;
@@ -64,8 +64,8 @@ export const ResourcesSchema = z.object({
   expires_at: z.string().nullable().optional(), // date string e.g. "2025-12-31"
   is_active: z.boolean().nullable().optional(),
   created_by: z.string().uuid(),
-  created_at: z.string().datetime().nullable().optional(),
-  updated_at: z.string().datetime().nullable().optional(),
+  created_at: z.string().datetime({ offset: true }).nullable().optional(),
+  updated_at: z.string().datetime({ offset: true }).nullable().optional(),
 });
 
 export type Resource = z.infer<typeof ResourcesSchema>;
@@ -81,9 +81,9 @@ export const OwnersSchema = z.object({
   verification_status: z.string().min(1),
   verification_method: z.enum(["phone", "document", "email_domain"]).nullable().optional(),
   verification_notes: z.string().nullable().optional(),
-  verified_at: z.string().datetime().nullable().optional(),
+  verified_at: z.string().datetime({ offset: true }).nullable().optional(),
   verified_by: z.string().uuid().nullable().optional(),
-  created_at: z.string().datetime().nullable().optional(),
+  created_at: z.string().datetime({ offset: true }).nullable().optional(),
 });
 
 export type Owner = z.infer<typeof OwnersSchema>;
@@ -105,7 +105,7 @@ export const PhysicalLocationsSchema = z.object({
   longitude: z.number().nullable().optional(),
   phone_number: z.string().nullable().optional(),
   verification_status: SubmissionStatusSchema.nullable().optional(),
-  created_at: z.string().datetime().nullable().optional(),
+  created_at: z.string().datetime({ offset: true }).nullable().optional(),
 });
 
 export type PhysicalLocation = z.infer<typeof PhysicalLocationsSchema>;
@@ -119,7 +119,7 @@ export const OnlineAccessSchema = z.object({
   resource_id: z.string().uuid(),
   url: z.string().url(),
   instructions: z.string().nullable().optional(),
-  created_at: z.string().datetime().nullable().optional(),
+  created_at: z.string().datetime({ offset: true }).nullable().optional(),
 });
 
 export type OnlineAccess = z.infer<typeof OnlineAccessSchema>;
@@ -133,7 +133,7 @@ export const OtherAccessSchema = z.object({
   resource_id: z.string().uuid(),
   notes: z.string().nullable().optional(),
   url: z.string().url().nullable().optional(),
-  created_at: z.string().datetime().nullable().optional(),
+  created_at: z.string().datetime({ offset: true }).nullable().optional(),
 });
 
 export type OtherAccess = z.infer<typeof OtherAccessSchema>;
@@ -194,7 +194,7 @@ export const VerificationEventsSchema = z.object({
   resource_id: z.string().uuid().nullable().optional(),
   physical_location_id: z.string().uuid().nullable().optional(),
   owner_id: z.string().uuid().nullable().optional(),
-  verified_at: z.string().datetime().nullable().optional(),
+  verified_at: z.string().datetime({ offset: true }).nullable().optional(),
   verified_by: z.string().uuid().nullable().optional(),
   method: z.string().nullable().optional(),
   outcome: z.string().nullable().optional(),
@@ -214,7 +214,7 @@ export const CommunityNotesSchema = z.object({
   body: z.string().min(1),
   rating: z.number().int().min(1).max(5).nullable().optional(),
   is_flagged: z.boolean().nullable().optional(),
-  created_at: z.string().datetime().nullable().optional(),
+  created_at: z.string().datetime({ offset: true }).nullable().optional(),
 });
 
 export type CommunityNote = z.infer<typeof CommunityNotesSchema>;
@@ -232,7 +232,7 @@ export const SubmissionsSchema = z.object({
   description: z.string().nullable().optional(),
   benefits: z.array(BenefitCategorySchema).nullable().optional(),
   access_notes: z.string().nullable().optional(),
-  created_at: z.string().datetime().nullable().optional(),
+  created_at: z.string().datetime({ offset: true }).nullable().optional(),
 });
 
 export type Submission = z.infer<typeof SubmissionsSchema>;
@@ -250,7 +250,7 @@ export const EditsSchema = z.object({
   field_name: z.string().min(1),
   old_value: z.string().nullable().optional(),
   new_value: z.string().nullable().optional(),
-  created_at: z.string().datetime().nullable().optional(),
+  created_at: z.string().datetime({ offset: true }).nullable().optional(),
 });
 
 export type Edit = z.infer<typeof EditsSchema>;
@@ -268,7 +268,7 @@ export const EditHistorySchema = z.object({
   field_name: z.string().min(1),
   old_value: z.string().nullable().optional(),
   new_value: z.string().nullable().optional(),
-  changed_at: z.string().datetime().nullable().optional(),
+  changed_at: z.string().datetime({ offset: true }).nullable().optional(),
 });
 
 export type EditHistory = z.infer<typeof EditHistorySchema>;

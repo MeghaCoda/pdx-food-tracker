@@ -41,7 +41,7 @@ describe('SingleEntrySection', () => {
   })
 
   it('calls uploadOffers with the correct payload on a valid submit', async () => {
-    vi.mocked(uploadOffers).mockResolvedValue({ success: true, created: 1 })
+    vi.mocked(uploadOffers).mockResolvedValue({ success: true, created: 1, skipped: 0 })
     render(<SingleEntrySection adminUserId={ADMIN_ID} />)
 
     fireEvent.change(screen.getByLabelText(/name/i), { target: { value: 'Oregon Food Bank' } })
@@ -56,7 +56,7 @@ describe('SingleEntrySection', () => {
   })
 
   it('omits location from the payload when no location fields are filled', async () => {
-    vi.mocked(uploadOffers).mockResolvedValue({ success: true, created: 1 })
+    vi.mocked(uploadOffers).mockResolvedValue({ success: true, created: 1, skipped: 0 })
     render(<SingleEntrySection adminUserId={ADMIN_ID} />)
 
     fireEvent.change(screen.getByLabelText(/name/i), { target: { value: 'Test Offer' } })
@@ -70,7 +70,7 @@ describe('SingleEntrySection', () => {
   })
 
   it('includes location in the payload when all required fields are filled', async () => {
-    vi.mocked(uploadOffers).mockResolvedValue({ success: true, created: 1 })
+    vi.mocked(uploadOffers).mockResolvedValue({ success: true, created: 1, skipped: 0 })
     render(<SingleEntrySection adminUserId={ADMIN_ID} />)
 
     fireEvent.change(screen.getByLabelText(/name/i), { target: { value: 'Test Offer' } })
@@ -90,7 +90,7 @@ describe('SingleEntrySection', () => {
   })
 
   it('shows a success message and resets the form on success', async () => {
-    vi.mocked(uploadOffers).mockResolvedValue({ success: true, created: 1 })
+    vi.mocked(uploadOffers).mockResolvedValue({ success: true, created: 1, skipped: 0 })
     render(<SingleEntrySection adminUserId={ADMIN_ID} />)
 
     fireEvent.change(screen.getByLabelText(/name/i), { target: { value: 'Oregon Food Bank' } })
@@ -101,7 +101,7 @@ describe('SingleEntrySection', () => {
   })
 
   it('shows an error message and preserves the form on failure', async () => {
-    vi.mocked(uploadOffers).mockResolvedValue({ created: 0, error: 'Database connection failed' })
+    vi.mocked(uploadOffers).mockResolvedValue({ created: 0, skipped: 0, error: 'Database connection failed' })
     render(<SingleEntrySection adminUserId={ADMIN_ID} />)
 
     fireEvent.change(screen.getByLabelText(/name/i), { target: { value: 'Test Offer' } })
@@ -112,7 +112,7 @@ describe('SingleEntrySection', () => {
   })
 
   it('toggles benefit checkboxes and includes them in the payload', async () => {
-    vi.mocked(uploadOffers).mockResolvedValue({ success: true, created: 1 })
+    vi.mocked(uploadOffers).mockResolvedValue({ success: true, created: 1, skipped: 0 })
     render(<SingleEntrySection adminUserId={ADMIN_ID} />)
 
     fireEvent.change(screen.getByLabelText(/name/i), { target: { value: 'Test Offer' } })

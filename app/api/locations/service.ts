@@ -95,7 +95,13 @@ export async function createLocation(
 
   if (resource_hours && resource_hours.length > 0) {
     await insertResourceHours(
-      resource_hours.map((h) => ({ ...h, physical_location_id: loc.id }))
+      resource_hours.map((h) => ({
+        ...h,
+        physical_location_id: loc.id,
+        notes: h.notes ?? null,
+        valid_from: h.valid_from ?? null,
+        valid_until: h.valid_until ?? null,
+      }))
     );
   }
 
@@ -113,7 +119,13 @@ export async function updateLocation(
     await deleteResourceHours(id);
     if (resource_hours.length > 0) {
       await insertResourceHours(
-        resource_hours.map((h) => ({ ...h, physical_location_id: id }))
+        resource_hours.map((h) => ({
+          ...h,
+          physical_location_id: id,
+          notes: h.notes ?? null,
+          valid_from: h.valid_from ?? null,
+          valid_until: h.valid_until ?? null,
+        }))
       );
     }
   }

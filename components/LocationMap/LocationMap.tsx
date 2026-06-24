@@ -10,9 +10,16 @@ import MarkerClusterGroup from "react-leaflet-markercluster";
 import 'leaflet/dist/leaflet.css';
 import L from "leaflet";
 import { useEffect } from "react";
-import type { Location } from "@/schemas/zodSchema";
 
-delete (L.Icon.Default.prototype as unknown as any)._getIconUrl;
+export interface Location {
+  id: string;
+  address: string;
+  address2?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+}
+
+delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
   iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
@@ -47,13 +54,16 @@ function GeolocationController() {
   return null;
 }
 
-interface ResourceMapProps {
-  onSelect: (a: Location) => void;
-  data: Location[];
+interface ResourceMapProps<T extends Location> {
+  onSelect: (a: T) => void;
+  data: T[];
 }
 
-const ResourceMap = ({ onSelect, data }: ResourceMapProps) => {
+function hasCoordinates<T extends Location>(item: T): item is T & { latitude: number; longitude: number } {
+  return item.latitude != null && item.longitude != null;
+}
 
+function ResourceMap<T extends Location>({ onSelect, data }: ResourceMapProps<T>) {
     return (
       <div className="h-full w-full min-w-0">
         <MapContainer center={FALLBACK_CENTER} zoom={FALLBACK_ZOOM} style={{ height: '100%', width: '100%' }}>
@@ -63,7 +73,7 @@ const ResourceMap = ({ onSelect, data }: ResourceMapProps) => {
           />
           <GeolocationController />
           <MarkerClusterGroup>
-            {data.map(item => (
+            {data.filter(hasCoordinates).map(item => (
                 <Marker key={item.id} position={[item.latitude, item.longitude]}
                 eventHandlers={{
                   click: () => {
@@ -71,7 +81,6 @@ const ResourceMap = ({ onSelect, data }: ResourceMapProps) => {
                   }
                 }}>
                   <Popup>
-                    <h3>{item.name}</h3>
                     <p>{item.address}</p>
                     {item.address2 && <p>{item.address2}</p>}
                   </Popup>
@@ -81,7 +90,6 @@ const ResourceMap = ({ onSelect, data }: ResourceMapProps) => {
         </MapContainer>
       </div>
     )
-    
 }
 
 export default ResourceMap;

@@ -42,7 +42,7 @@ describe('AuthPage', () => {
     })
 
     it('disables the sign-out button while signing out', async () => {
-      vi.mocked(fetch).mockResolvedValue(new Promise(() => {}))
+      vi.mocked(fetch).mockImplementation(() => new Promise(() => {}))
       render(<AuthPage user={mockUser} />)
 
       fireEvent.click(screen.getByRole('button', { name: /sign out/i }))
@@ -128,7 +128,7 @@ describe('AuthPage', () => {
     })
 
     it('disables the button and shows a loading label while submitting', async () => {
-      vi.mocked(fetch).mockResolvedValue(new Promise(() => {}))
+      vi.mocked(fetch).mockImplementation(() => new Promise(() => {}))
       render(<AuthPage user={null} />)
 
       submitSignInForm()
@@ -142,7 +142,7 @@ describe('AuthPage', () => {
           ok: false,
           json: async () => ({ error: 'Bad credentials' }),
         } as Response)
-        .mockResolvedValueOnce(new Promise(() => {}))
+        .mockImplementationOnce(() => new Promise(() => {}))
 
       render(<AuthPage user={null} />)
 
@@ -214,7 +214,7 @@ describe('AuthPage', () => {
     })
 
     it('disables the button and shows a loading label while submitting', async () => {
-      vi.mocked(fetch).mockResolvedValue(new Promise(() => {}))
+      vi.mocked(fetch).mockImplementation(() => new Promise(() => {}))
 
       submitResetForm()
 

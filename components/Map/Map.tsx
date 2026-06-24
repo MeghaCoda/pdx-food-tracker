@@ -1,7 +1,7 @@
 "use client"
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import LocationMap from "@/components/LocationMap";
+import LocationMap, { type Location } from "@/components/LocationMap";
 import type { PhysicalLocation } from "@/schemas/zodSchema";
 import LocationDetails from "../LocationDetails/LocationDetails";
 import SearchBar from "../SearchBar/SearchBar";
@@ -27,7 +27,7 @@ const Map = () => {
 
                 <div className="flex-1 min-w-0">
                     <LocationMap
-                        onSelect={(item: PhysicalLocation) => setSelectedItem(item)}
+                        onSelect={(item) => setSelectedItem(item as PhysicalLocation)}
                         data={locations}
                     />
                 </div>

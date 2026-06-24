@@ -58,7 +58,7 @@ describe('CSVSection', () => {
   })
 
   it('calls uploadOffers with parsed rows when submit is clicked', async () => {
-    vi.mocked(uploadOffers).mockResolvedValue({ success: true, created: 2 })
+    vi.mocked(uploadOffers).mockResolvedValue({ success: true, created: 2, skipped: 0 })
     render(<CSVSection adminUserId={ADMIN_ID} />)
     simulateFileUpload(screen.getByLabelText('CSV File'), VALID_CSV)
 
@@ -75,7 +75,7 @@ describe('CSVSection', () => {
   })
 
   it('shows a success message and clears the preview after a successful upload', async () => {
-    vi.mocked(uploadOffers).mockResolvedValue({ success: true, created: 2 })
+    vi.mocked(uploadOffers).mockResolvedValue({ success: true, created: 2, skipped: 0 })
     render(<CSVSection adminUserId={ADMIN_ID} />)
     simulateFileUpload(screen.getByLabelText('CSV File'), VALID_CSV)
 
@@ -87,7 +87,7 @@ describe('CSVSection', () => {
   })
 
   it('shows an error message and preserves the preview on a failed upload', async () => {
-    vi.mocked(uploadOffers).mockResolvedValue({ created: 0, error: 'Insert failed' })
+    vi.mocked(uploadOffers).mockResolvedValue({ created: 0, skipped: 0, error: 'Insert failed' })
     render(<CSVSection adminUserId={ADMIN_ID} />)
     simulateFileUpload(screen.getByLabelText('CSV File'), VALID_CSV)
 

@@ -163,7 +163,7 @@ describe('UpdatePasswordPage', () => {
     })
 
     it('disables the button and shows a loading label while submitting', async () => {
-      vi.mocked(fetch).mockResolvedValue(new Promise(() => {}))
+      vi.mocked(fetch).mockImplementation(() => new Promise(() => {}))
       render(<UpdatePasswordPage />)
       fillAndSubmit()
 

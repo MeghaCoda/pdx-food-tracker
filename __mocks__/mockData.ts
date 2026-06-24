@@ -16,13 +16,13 @@ export const mockDbRow = {
   latitude: 45.523,
   longitude: -122.6765,
   phone_number: '503-555-1234',
-  verification_status: 'pending',
+  verification_status: 'pending' as const,
   created_at: '2025-01-01T00:00:00Z',
   resource_hours: [
     {
       id: MOCK_HOURS_ID,
       physical_location_id: MOCK_LOCATION_ID,
-      day: 'monday',
+      day: 'monday' as const,
       opens_at: '08:00:00',
       closes_at: '17:00:00',
       notes: null,

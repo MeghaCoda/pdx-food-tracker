@@ -21,10 +21,10 @@ export default function Home() {
         local food pantries and community services. Check back soon.
       </p>
       
-        <a href="mailto:rosecityfinds@gmail.com"
+        <a href="mailto:rosecityfinds.info@gmail.com"
         style={{ fontSize: '14px', color: '#666', textDecoration: 'none', borderBottom: '1px solid #ccc', paddingBottom: '2px' }}
       >
-        rosecityfinds@gmail.com
+        rosecityfinds.info@gmail.com
       </a>
     </main>
   )

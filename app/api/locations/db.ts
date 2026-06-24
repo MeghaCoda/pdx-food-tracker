@@ -1,9 +1,11 @@
 import { createSupabaseClient } from '@/lib/supabase';
 
+type DayOfWeek = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
+
 export type ResourceHoursRow = {
   id: string;
   physical_location_id: string;
-  day: string;
+  day: DayOfWeek;
   opens_at: string;
   closes_at: string;
   notes: string | null;

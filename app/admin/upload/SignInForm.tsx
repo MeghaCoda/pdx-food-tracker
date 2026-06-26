@@ -5,6 +5,13 @@ import { signIn, type SignInState } from './actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  ADMIN_SIGN_IN_TITLE,
+  ADMIN_SIGN_IN_SUBTITLE,
+  ADMIN_EMAIL_PLACEHOLDER,
+  SIGN_IN_LABEL,
+  SIGNING_IN_LABEL,
+} from './uploadConstants';
 
 const initialState: SignInState = {};
 
@@ -13,9 +20,9 @@ export function SignInForm() {
 
   return (
     <div className="rounded-xl border border-border bg-card p-6 shadow-sm max-w-sm">
-      <h2 className="text-lg font-semibold mb-1">Admin Sign In</h2>
+      <h2 className="text-lg font-semibold mb-1">{ADMIN_SIGN_IN_TITLE}</h2>
       <p className="text-sm text-muted-foreground mb-6">
-        You must be signed in as an admin to upload locations.
+        {ADMIN_SIGN_IN_SUBTITLE}
       </p>
 
       {state.error && (
@@ -34,7 +41,7 @@ export function SignInForm() {
             id="email"
             name="email"
             type="email"
-            placeholder="admin@example.com"
+            placeholder={ADMIN_EMAIL_PLACEHOLDER}
             required
             autoComplete="email"
           />
@@ -52,7 +59,7 @@ export function SignInForm() {
         </div>
 
         <Button type="submit" disabled={isPending} className="mt-2">
-          {isPending ? 'Signing in…' : 'Sign In'}
+          {isPending ? SIGNING_IN_LABEL : SIGN_IN_LABEL}
         </Button>
       </form>
     </div>

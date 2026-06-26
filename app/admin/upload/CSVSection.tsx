@@ -5,6 +5,16 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { uploadOffers, type BatchUploadResult } from './actions';
 import { parseOffersCSV, type ParseResult } from './csvParser';
+import {
+  CSV_COLUMN_NAMES,
+  CSV_MULTI_BENEFIT_HINT,
+  CSV_DOWNLOAD_LABEL,
+  CSV_FILE_LABEL,
+  CSV_TABLE_NAME,
+  CSV_TABLE_BENEFITS,
+  CSV_TABLE_LOCATION,
+  UPLOADING_LABEL,
+} from './uploadConstants';
 
 function downloadExampleCSV() {
   const headers = [
@@ -121,17 +131,15 @@ export function CSVSection({ adminUserId }: { adminUserId: string }) {
         <p className="text-sm text-muted-foreground">
           Upload a CSV with columns:{' '}
           <code className="text-xs bg-muted px-1 py-0.5 rounded">
-            name, description, offer_desc, offer_source, benefits, expires_at, is_active, notes,
-            address, address2, city, state, zip_code, neighborhood, phone_number, location_notes
+            {CSV_COLUMN_NAMES}
           </code>
-          . Separate multiple benefit values with commas.
-          If any location field is present, address, city, state, and zip_code are all required.
+          . {CSV_MULTI_BENEFIT_HINT}
         </p>
         <button
           onClick={downloadExampleCSV}
           className="mt-2 text-sm text-primary underline underline-offset-4 hover:text-primary/80 transition-colors"
         >
-          Download example CSV
+          {CSV_DOWNLOAD_LABEL}
         </button>
       </div>
 
@@ -148,7 +156,7 @@ export function CSVSection({ adminUserId }: { adminUserId: string }) {
       )}
 
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="csv-file">CSV File</Label>
+        <Label htmlFor="csv-file">{CSV_FILE_LABEL}</Label>
         <input
           ref={fileRef}
           id="csv-file"
@@ -181,9 +189,9 @@ export function CSVSection({ adminUserId }: { adminUserId: string }) {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/50">
-                  <th className="px-3 py-2 text-left font-medium">Name</th>
-                  <th className="px-3 py-2 text-left font-medium">Benefits</th>
-                  <th className="px-3 py-2 text-left font-medium">Location</th>
+                  <th className="px-3 py-2 text-left font-medium">{CSV_TABLE_NAME}</th>
+                  <th className="px-3 py-2 text-left font-medium">{CSV_TABLE_BENEFITS}</th>
+                  <th className="px-3 py-2 text-left font-medium">{CSV_TABLE_LOCATION}</th>
                 </tr>
               </thead>
               <tbody>
@@ -203,7 +211,7 @@ export function CSVSection({ adminUserId }: { adminUserId: string }) {
           </div>
           <Button onClick={handleSubmit} disabled={isPending}>
             {isPending
-              ? 'Uploading…'
+              ? UPLOADING_LABEL
               : `Submit ${parseResult.rows.length} offer${parseResult.rows.length !== 1 ? 's' : ''}`}
           </Button>
         </div>

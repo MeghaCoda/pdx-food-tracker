@@ -8,10 +8,13 @@ export async function Header() {
 
   return (
     <header className="flex items-center justify-between px-6 py-4 border-b border-border">
-      <Link href="/" className="text-2xl font-semibold">
-        Food Map
-      </Link>
-      <nav>
+      <div>
+        <p className="font-semibold leading-tight">Food Map</p>
+        <p className="text-sm text-muted-foreground leading-tight">
+          Free and Discounted Food near Portland, OR
+        </p>
+      </div>
+      <nav className="shrink-0 ml-4">
         {isSignedIn ? (
           <SignOutButton />
         ) : (

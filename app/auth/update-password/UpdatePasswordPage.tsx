@@ -5,6 +5,24 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { API_ROUTES, ROUTES } from '@/lib/constants';
+import { BACK_TO_SIGN_IN } from '../constants';
+import {
+  INVALID_LINK_DEFAULT_ERROR,
+  INVALID_RECOVERY_LINK_ERROR,
+  PASSWORDS_MISMATCH_ERROR,
+  UPDATE_PASSWORD_DEFAULT_ERROR,
+  LINK_INVALID_TITLE,
+  PASSWORD_UPDATED_TITLE,
+  PASSWORD_UPDATED_MESSAGE,
+  CONTINUE_LABEL,
+  SET_NEW_PASSWORD_TITLE,
+  SET_NEW_PASSWORD_SUBTITLE,
+  NEW_PASSWORD_LABEL,
+  CONFIRM_PASSWORD_LABEL,
+  UPDATING_LABEL,
+  UPDATE_PASSWORD_LABEL,
+} from './constants';
 
 export function UpdatePasswordPage() {
   const router = useRouter();
@@ -22,7 +40,7 @@ export function UpdatePasswordPage() {
     if (errorCode) {
       setTokenError(
         params.get('error_description')?.replace(/\+/g, ' ') ??
-          'The reset link is invalid or has expired.',
+          INVALID_LINK_DEFAULT_ERROR,
       );
       setStatus('invalid');
       return;
@@ -32,7 +50,7 @@ export function UpdatePasswordPage() {
     const token = params.get('access_token');
 
     if (type !== 'recovery' || !token) {
-      setTokenError('Invalid recovery link. Please request a new password reset.');
+      setTokenError(INVALID_RECOVERY_LINK_ERROR);
       setStatus('invalid');
       return;
     }
@@ -52,12 +70,12 @@ export function UpdatePasswordPage() {
     const confirm = (form.elements.namedItem('confirm') as HTMLInputElement).value;
 
     if (password !== confirm) {
-      setFormError('Passwords do not match.');
+      setFormError(PASSWORDS_MISMATCH_ERROR);
       setIsPending(false);
       return;
     }
 
-    const res = await fetch('/api/auth/update-password', {
+    const res = await fetch(API_ROUTES.AUTH_UPDATE_PASSWORD, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ access_token: accessToken, refresh_token: refreshToken, password }),
@@ -67,7 +85,7 @@ export function UpdatePasswordPage() {
       setStatus('success');
     } else {
       const data = await res.json();
-      setFormError(data.error ?? 'Failed to update password. Please try again.');
+      setFormError(data.error ?? UPDATE_PASSWORD_DEFAULT_ERROR);
     }
     setIsPending(false);
   }
@@ -79,7 +97,7 @@ export function UpdatePasswordPage() {
   if (status === 'invalid') {
     return (
       <div className="rounded-xl border border-border bg-card p-6 shadow-sm max-w-sm w-full">
-        <h2 className="text-lg font-semibold mb-1">Link Invalid</h2>
+        <h2 className="text-lg font-semibold mb-1">{LINK_INVALID_TITLE}</h2>
         <div
           role="alert"
           className="mt-4 rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive"
@@ -87,10 +105,10 @@ export function UpdatePasswordPage() {
           {tokenError}
         </div>
         <button
-          onClick={() => router.push('/auth')}
+          onClick={() => router.push(ROUTES.AUTH)}
           className="mt-4 text-sm text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4"
         >
-          Back to sign in
+          {BACK_TO_SIGN_IN}
         </button>
       </div>
     );
@@ -99,19 +117,19 @@ export function UpdatePasswordPage() {
   if (status === 'success') {
     return (
       <div className="rounded-xl border border-border bg-card p-6 shadow-sm max-w-sm w-full">
-        <h2 className="text-lg font-semibold mb-1">Password Updated</h2>
+        <h2 className="text-lg font-semibold mb-1">{PASSWORD_UPDATED_TITLE}</h2>
         <p className="text-sm text-muted-foreground mb-6">
-          Your password has been updated successfully.
+          {PASSWORD_UPDATED_MESSAGE}
         </p>
-        <Button onClick={() => router.push('/')}>Continue</Button>
+        <Button onClick={() => router.push(ROUTES.HOME)}>{CONTINUE_LABEL}</Button>
       </div>
     );
   }
 
   return (
     <div className="rounded-xl border border-border bg-card p-6 shadow-sm max-w-sm w-full">
-      <h2 className="text-lg font-semibold mb-1">Set New Password</h2>
-      <p className="text-sm text-muted-foreground mb-6">Enter your new password below.</p>
+      <h2 className="text-lg font-semibold mb-1">{SET_NEW_PASSWORD_TITLE}</h2>
+      <p className="text-sm text-muted-foreground mb-6">{SET_NEW_PASSWORD_SUBTITLE}</p>
 
       {formError && (
         <div
@@ -124,7 +142,7 @@ export function UpdatePasswordPage() {
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="password">New Password</Label>
+          <Label htmlFor="password">{NEW_PASSWORD_LABEL}</Label>
           <Input
             id="password"
             name="password"
@@ -136,7 +154,7 @@ export function UpdatePasswordPage() {
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="confirm">Confirm Password</Label>
+          <Label htmlFor="confirm">{CONFIRM_PASSWORD_LABEL}</Label>
           <Input
             id="confirm"
             name="confirm"
@@ -147,7 +165,7 @@ export function UpdatePasswordPage() {
         </div>
 
         <Button type="submit" disabled={isPending} className="mt-2">
-          {isPending ? 'Updating…' : 'Update Password'}
+          {isPending ? UPDATING_LABEL : UPDATE_PASSWORD_LABEL}
         </Button>
       </form>
     </div>

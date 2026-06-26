@@ -10,16 +10,27 @@ import {
   type OfferLocation,
   type LocationHour,
 } from './actions';
-import { BENEFIT_CATEGORIES } from './uploadConstants';
+import {
+  BENEFIT_CATEGORIES,
+  DAY_ORDER,
+  DAY_LABELS,
+  BACK_LABEL,
+  LOADING_LABEL,
+  APPROVAL_PANEL_TITLE,
+  APPROVAL_PANEL_SUBTITLE,
+  ALL_CAUGHT_UP_TITLE,
+  ALL_CAUGHT_UP_MESSAGE,
+  APPROVE_LABEL,
+  REJECT_LABEL,
+  APPROVE_RESOURCE_LABEL,
+  OFFER_FIELD_LABEL,
+  SOURCE_FIELD_LABEL,
+  HOURS_SECTION_LABEL,
+  SAVING_LABEL,
+} from './uploadConstants';
 
 const benefitLabel = (value: string) =>
   BENEFIT_CATEGORIES.find((b) => b.value === value)?.label ?? value;
-
-const DAY_ORDER = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-const DAY_LABELS: Record<string, string> = {
-  monday: 'Mon', tuesday: 'Tue', wednesday: 'Wed', thursday: 'Thu',
-  friday: 'Fri', saturday: 'Sat', sunday: 'Sun',
-};
 
 function formatTime(t: string): string {
   const [h, m] = t.split(':').map(Number);
@@ -72,7 +83,7 @@ function LocationCard({
         {loc.notes && <p className="text-muted-foreground">{loc.notes}</p>}
         {loc.hours.length > 0 && (
           <div className="mt-1">
-            <p className="text-xs font-medium text-foreground">Hours</p>
+            <p className="text-xs font-medium text-foreground">{HOURS_SECTION_LABEL}</p>
             <HoursList hours={loc.hours} />
           </div>
         )}
@@ -87,14 +98,14 @@ function LocationCard({
               disabled={loading}
               className="text-xs px-2.5 py-1 rounded-full bg-green-500/10 border border-green-500/30 text-green-700 dark:text-green-400 hover:bg-green-500/20 transition-colors disabled:opacity-50"
             >
-              Approve
+              {APPROVE_LABEL}
             </button>
             <button
               onClick={() => onAction(loc.id, 'rejected')}
               disabled={loading}
               className="text-xs px-2.5 py-1 rounded-full bg-destructive/10 border border-destructive/30 text-destructive hover:bg-destructive/20 transition-colors disabled:opacity-50"
             >
-              Reject
+              {REJECT_LABEL}
             </button>
           </div>
         )}
@@ -149,13 +160,13 @@ function ResourceCard({
           {item.description && <p className="text-foreground">{item.description}</p>}
           {item.offer_desc && (
             <p className="text-muted-foreground">
-              <span className="font-medium text-foreground">Offer: </span>
+              <span className="font-medium text-foreground">{OFFER_FIELD_LABEL}</span>
               {item.offer_desc}
             </p>
           )}
           {item.offer_source && (
             <p className="text-muted-foreground">
-              <span className="font-medium text-foreground">Source: </span>
+              <span className="font-medium text-foreground">{SOURCE_FIELD_LABEL}</span>
               {item.offer_source}
             </p>
           )}
@@ -205,7 +216,7 @@ function ResourceCard({
           disabled={resourceLoading}
           className="bg-green-600 hover:bg-green-700 text-white"
         >
-          {resourceLoading ? 'Saving…' : 'Approve resource'}
+          {resourceLoading ? SAVING_LABEL : APPROVE_RESOURCE_LABEL}
         </Button>
         <Button
           size="sm"
@@ -213,7 +224,7 @@ function ResourceCard({
           onClick={() => onResourceAction(item.id, 'rejected')}
           disabled={resourceLoading}
         >
-          Reject
+          {REJECT_LABEL}
         </Button>
       </div>
     </div>
@@ -282,13 +293,13 @@ export function ApprovalPanel({ onBack }: { onBack: () => void }) {
         onClick={onBack}
         className="text-sm text-muted-foreground hover:text-foreground transition-colors self-start"
       >
-        ← Back
+        {BACK_LABEL}
       </button>
 
       <div>
-        <h2 className="text-lg font-semibold">Pending approval</h2>
+        <h2 className="text-lg font-semibold">{APPROVAL_PANEL_TITLE}</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Review new resources and approve or reject them.
+          {APPROVAL_PANEL_SUBTITLE}
         </p>
       </div>
 
@@ -299,13 +310,13 @@ export function ApprovalPanel({ onBack }: { onBack: () => void }) {
       )}
 
       {items === null && (
-        <p className="text-sm text-muted-foreground">Loading…</p>
+        <p className="text-sm text-muted-foreground">{LOADING_LABEL}</p>
       )}
 
       {items !== null && items.length === 0 && (
         <div className="rounded-xl border border-border bg-card p-6 text-center">
-          <p className="font-medium">All caught up</p>
-          <p className="mt-1 text-sm text-muted-foreground">No resources pending approval.</p>
+          <p className="font-medium">{ALL_CAUGHT_UP_TITLE}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{ALL_CAUGHT_UP_MESSAGE}</p>
         </div>
       )}
 

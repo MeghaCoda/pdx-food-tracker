@@ -6,6 +6,27 @@ import type { User } from '@supabase/supabase-js';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { API_ROUTES, ROUTES } from '@/lib/constants';
+import {
+  SIGN_IN_TITLE,
+  SIGN_IN_SUBTITLE,
+  SIGN_IN_LABEL,
+  SIGNING_IN_LABEL,
+  SIGN_IN_DEFAULT_ERROR,
+  FORGOT_PASSWORD_LABEL,
+  EMAIL_PLACEHOLDER,
+  RESET_PASSWORD_TITLE,
+  RESET_PASSWORD_SUBTITLE,
+  RESET_SUCCESS_MESSAGE,
+  RESET_DEFAULT_ERROR,
+  SEND_RESET_LABEL,
+  SENDING_LABEL,
+  BACK_TO_SIGN_IN,
+  SIGNED_IN_TITLE,
+  SIGNED_IN_SUBTITLE,
+  SIGN_OUT_LABEL,
+  SIGNING_OUT_LABEL,
+} from './constants';
 
 type View = 'signin' | 'reset';
 
@@ -22,25 +43,25 @@ function SignInForm({ onForgotPassword }: { onForgotPassword: () => void }) {
     const email = (form.elements.namedItem('email') as HTMLInputElement).value;
     const password = (form.elements.namedItem('password') as HTMLInputElement).value;
 
-    const res = await fetch('/api/auth/signin', {
+    const res = await fetch(API_ROUTES.AUTH_SIGNIN, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
     });
 
     if (res.ok) {
-      router.push('/');
+      router.push(ROUTES.HOME);
     } else {
       const data = await res.json();
-      setError(data.error ?? 'Sign in failed.');
+      setError(data.error ?? SIGN_IN_DEFAULT_ERROR);
       setIsPending(false);
     }
   }
 
   return (
     <div className="rounded-xl border border-border bg-card p-6 shadow-sm max-w-sm w-full">
-      <h2 className="text-lg font-semibold mb-1">Sign In</h2>
-      <p className="text-sm text-muted-foreground mb-6">Sign in to your account.</p>
+      <h2 className="text-lg font-semibold mb-1">{SIGN_IN_TITLE}</h2>
+      <p className="text-sm text-muted-foreground mb-6">{SIGN_IN_SUBTITLE}</p>
 
       {error && (
         <div
@@ -58,7 +79,7 @@ function SignInForm({ onForgotPassword }: { onForgotPassword: () => void }) {
             id="email"
             name="email"
             type="email"
-            placeholder="you@example.com"
+            placeholder={EMAIL_PLACEHOLDER}
             required
             autoComplete="email"
           />
@@ -76,7 +97,7 @@ function SignInForm({ onForgotPassword }: { onForgotPassword: () => void }) {
         </div>
 
         <Button type="submit" disabled={isPending} className="mt-2">
-          {isPending ? 'Signing in…' : 'Sign In'}
+          {isPending ? SIGNING_IN_LABEL : SIGN_IN_LABEL}
         </Button>
       </form>
 
@@ -84,7 +105,7 @@ function SignInForm({ onForgotPassword }: { onForgotPassword: () => void }) {
         onClick={onForgotPassword}
         className="mt-4 text-sm text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4"
       >
-        Forgot your password?
+        {FORGOT_PASSWORD_LABEL}
       </button>
     </div>
   );
@@ -101,7 +122,7 @@ function ResetPasswordForm({ onBack }: { onBack: () => void }) {
     const form = e.currentTarget;
     const email = (form.elements.namedItem('email') as HTMLInputElement).value;
 
-    const res = await fetch('/api/auth/reset-password', {
+    const res = await fetch(API_ROUTES.AUTH_RESET_PASSWORD, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email }),
@@ -111,7 +132,7 @@ function ResetPasswordForm({ onBack }: { onBack: () => void }) {
       setStatus('success');
     } else {
       const data = await res.json();
-      setError(data.error ?? 'Failed to send reset email. Please try again.');
+      setError(data.error ?? RESET_DEFAULT_ERROR);
       setStatus('error');
     }
     setIsPending(false);
@@ -119,9 +140,9 @@ function ResetPasswordForm({ onBack }: { onBack: () => void }) {
 
   return (
     <div className="rounded-xl border border-border bg-card p-6 shadow-sm max-w-sm w-full">
-      <h2 className="text-lg font-semibold mb-1">Reset Password</h2>
+      <h2 className="text-lg font-semibold mb-1">{RESET_PASSWORD_TITLE}</h2>
       <p className="text-sm text-muted-foreground mb-6">
-        Enter your email and we'll send you a reset link.
+        {RESET_PASSWORD_SUBTITLE}
       </p>
 
       {status === 'success' && (
@@ -129,7 +150,7 @@ function ResetPasswordForm({ onBack }: { onBack: () => void }) {
           role="status"
           className="mb-4 rounded-lg bg-green-500/10 border border-green-500/20 px-4 py-3 text-sm text-green-700 dark:text-green-400"
         >
-          Check your email for a password reset link.
+          {RESET_SUCCESS_MESSAGE}
         </div>
       )}
 
@@ -150,14 +171,14 @@ function ResetPasswordForm({ onBack }: { onBack: () => void }) {
               id="reset-email"
               name="email"
               type="email"
-              placeholder="you@example.com"
+              placeholder={EMAIL_PLACEHOLDER}
               required
               autoComplete="email"
             />
           </div>
 
           <Button type="submit" disabled={isPending} className="mt-2">
-            {isPending ? 'Sending…' : 'Send Reset Link'}
+            {isPending ? SENDING_LABEL : SEND_RESET_LABEL}
           </Button>
         </form>
       )}
@@ -166,7 +187,7 @@ function ResetPasswordForm({ onBack }: { onBack: () => void }) {
         onClick={onBack}
         className="mt-4 text-sm text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4"
       >
-        Back to sign in
+        {BACK_TO_SIGN_IN}
       </button>
     </div>
   );
@@ -178,18 +199,18 @@ function SignedInView() {
 
   async function handleSignOut() {
     setIsPending(true);
-    await fetch('/api/auth/signout', { method: 'POST' });
+    await fetch(API_ROUTES.AUTH_SIGNOUT, { method: 'POST' });
     router.refresh();
   }
 
   return (
     <div className="rounded-xl border border-border bg-card p-6 shadow-sm max-w-sm w-full">
-      <h2 className="text-lg font-semibold mb-1">You're signed in</h2>
+      <h2 className="text-lg font-semibold mb-1">{SIGNED_IN_TITLE}</h2>
       <p className="text-sm text-muted-foreground mb-6">
-        Click below to sign out of your account.
+        {SIGNED_IN_SUBTITLE}
       </p>
       <Button variant="outline" disabled={isPending} onClick={handleSignOut}>
-        {isPending ? 'Signing out…' : 'Sign Out'}
+        {isPending ? SIGNING_OUT_LABEL : SIGN_OUT_LABEL}
       </Button>
     </div>
   );

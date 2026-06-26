@@ -1,6 +1,10 @@
-import Map from "@/components/Map/Map"
-const MapHome = () => { 
-return <><Map /></>
-}
+import { Suspense } from 'react'
+import { MapResultsPage } from './MapResultsPage'
 
-export default MapHome;
+export default function MapPage() {
+  return (
+    <Suspense>
+      <MapResultsPage />
+    </Suspense>
+  )
+}

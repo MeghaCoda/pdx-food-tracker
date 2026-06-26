@@ -2,6 +2,18 @@
 
 import { useRouter } from 'next/navigation'
 import { useSearchFilters, type FilterKey } from '@/store/searchFilters'
+import { APP_NAME, ROUTES } from '@/lib/constants'
+import {
+  QUICK_ACTION_TITLE,
+  QUICK_ACTION_SUBTITLE,
+  FILTERS_HEADER,
+  ANYONE_LABEL,
+  SUBMIT_LABEL,
+  SUBMIT_SUFFIX,
+  FILTER_SECTION_LABELS,
+  TOGGLE_LABELS,
+  ELIGIBILITY_OPTIONS,
+} from './constants'
 
 function SquareIcon({ filled }: { filled: boolean }) {
   return (
@@ -73,16 +85,6 @@ function FilterSection({ label, children }: { label: string; children: React.Rea
   )
 }
 
-const ELIGIBILITY_OPTIONS = [
-  { value: 'honor_system', label: 'Honor system' },
-  { value: 'snap_ebt', label: 'SNAP / EBT' },
-  { value: 'wic', label: 'WIC' },
-  { value: 'seniors', label: 'Seniors (65+)' },
-  { value: 'children', label: 'Children' },
-  { value: 'income_restricted', label: 'Income restricted' },
-  { value: 'residency_required', label: 'Residency required' },
-]
-
 export default function SearchPage() {
   const router = useRouter()
   const { price, foodType, accessType, eligibility, toggle, toParams } = useSearchFilters()
@@ -93,11 +95,11 @@ export default function SearchPage() {
 
   function handleSubmit() {
     const params = toParams()
-    router.push(`/map?${params.toString()}`)
+    router.push(`${ROUTES.MAP}?${params.toString()}`)
   }
 
   function handleQuickAction() {
-    router.push('/map?openNow=true')
+    router.push(ROUTES.MAP_OPEN_NOW)
   }
 
   const anyoneSelected = eligibility.includes('anyone')
@@ -119,7 +121,7 @@ export default function SearchPage() {
       {/* Blue header band */}
       <div className="bg-[#2B5CA8] px-4 pt-4 pb-6">
         <p className="text-xs font-semibold tracking-widest text-white/70 uppercase mb-3">
-          Rose City Finds
+          {APP_NAME}
         </p>
         <button
           type="button"
@@ -132,10 +134,10 @@ export default function SearchPage() {
             </span>
             <div>
               <p className="text-[#2B5CA8] font-semibold text-base leading-tight">
-                Free food near me now
+                {QUICK_ACTION_TITLE}
               </p>
               <p className="text-[#2B5CA8] text-sm leading-tight mt-0.5">
-                Skip filters — show what&apos;s open
+                {QUICK_ACTION_SUBTITLE}
               </p>
             </div>
           </div>
@@ -148,21 +150,21 @@ export default function SearchPage() {
       {/* Filter body */}
       <div className="flex-1 px-4 pt-6 pb-28 flex flex-col gap-4">
         <p className="text-xs font-semibold tracking-widest text-gray-400 uppercase px-1">
-          What are you looking for?
+          {FILTERS_HEADER}
         </p>
 
         {/* Price */}
-        <FilterSection label="Price">
+        <FilterSection label={FILTER_SECTION_LABELS.PRICE}>
           <div className="flex gap-3">
             <ToggleButton
-              label="Free"
+              label={TOGGLE_LABELS.FREE}
               selected={price.includes('free')}
               onClick={() => handleToggle('price', 'free')}
               selectedBg="bg-[#4A6B1C] border-[#4A6B1C]"
               fullWidth
             />
             <ToggleButton
-              label="Discount"
+              label={TOGGLE_LABELS.DISCOUNT}
               selected={price.includes('discount')}
               onClick={() => handleToggle('price', 'discount')}
               fullWidth
@@ -171,20 +173,20 @@ export default function SearchPage() {
         </FilterSection>
 
         {/* Food Type */}
-        <FilterSection label="Food Type">
+        <FilterSection label={FILTER_SECTION_LABELS.FOOD_TYPE}>
           <div className="flex flex-wrap gap-2">
             <ToggleButton
-              label="Prepared"
+              label={TOGGLE_LABELS.PREPARED}
               selected={foodType.includes('prepared')}
               onClick={() => handleToggle('foodType', 'prepared')}
             />
             <ToggleButton
-              label="Groceries"
+              label={TOGGLE_LABELS.GROCERIES}
               selected={foodType.includes('groceries')}
               onClick={() => handleToggle('foodType', 'groceries')}
             />
             <ToggleButton
-              label="Restaurant"
+              label={TOGGLE_LABELS.RESTAURANT}
               selected={foodType.includes('restaurant')}
               onClick={() => handleToggle('foodType', 'restaurant')}
             />
@@ -192,15 +194,15 @@ export default function SearchPage() {
         </FilterSection>
 
         {/* How you get it */}
-        <FilterSection label="How You Get It">
+        <FilterSection label={FILTER_SECTION_LABELS.HOW_YOU_GET_IT}>
           <div className="flex flex-wrap gap-2">
             <ToggleButton
-              label="Pickup"
+              label={TOGGLE_LABELS.PICKUP}
               selected={accessType.includes('pickup')}
               onClick={() => handleToggle('accessType', 'pickup')}
             />
             <ToggleButton
-              label="Delivery"
+              label={TOGGLE_LABELS.DELIVERY}
               selected={accessType.includes('delivery')}
               onClick={() => handleToggle('accessType', 'delivery')}
             />
@@ -208,7 +210,7 @@ export default function SearchPage() {
         </FilterSection>
 
         {/* Eligibility */}
-        <FilterSection label="Eligibility">
+        <FilterSection label={FILTER_SECTION_LABELS.ELIGIBILITY}>
           {/* Anyone row */}
           <button
             type="button"
@@ -216,7 +218,7 @@ export default function SearchPage() {
             className="w-full flex items-center gap-3 py-3 border-b border-gray-100 cursor-pointer"
           >
             <CheckboxIcon checked={anyoneSelected} />
-            <span className="text-sm font-medium text-gray-800">Anyone — no requirements</span>
+            <span className="text-sm font-medium text-gray-800">{ANYONE_LABEL}</span>
           </button>
 
           {/* 2-col grid */}
@@ -251,8 +253,8 @@ export default function SearchPage() {
           className="w-full bg-[#1A3A6C] text-white rounded-xl px-6 py-5 flex items-center justify-center gap-3 font-semibold text-lg cursor-pointer hover:bg-[#15305C] transition-colors"
         >
           <span className="flex items-center justify-center w-5 h-5 rounded-[3px] border-2 border-white shrink-0" aria-hidden />
-          Show me results
-          <span className="text-white/60 text-sm font-normal">· list and map</span>
+          {SUBMIT_LABEL}
+          <span className="text-white/60 text-sm font-normal">{SUBMIT_SUFFIX}</span>
         </button>
       </div>
     </div>

@@ -13,6 +13,21 @@ export type ResourceHoursRow = {
   valid_until: string | null;
 };
 
+export type ResourceRow = {
+  id: string;
+  name: string;
+  description: string | null;
+  offer_desc: string | null;
+  offer_source: string | null;
+  benefits: string[] | null;
+  verification_status: 'pending' | 'approved' | 'rejected' | null;
+  expires_at: string | null;
+  is_active: boolean | null;
+  created_by: string;
+  created_at: string | null;
+  updated_at: string | null;
+};
+
 export type PhysicalLocationRow = {
   id: string;
   resource_id: string;
@@ -27,6 +42,7 @@ export type PhysicalLocationRow = {
   phone_number: string | null;
   verification_status: 'pending' | 'approved' | 'rejected' | null;
   created_at: string | null;
+  resources: ResourceRow | null;
   resource_hours: ResourceHoursRow[];
 };
 
@@ -37,7 +53,7 @@ export async function fetchPhysicalLocationById(id: string): Promise<PhysicalLoc
   const supabase = createSupabaseClient();
   const { data, error } = await supabase
     .from('physical_locations')
-    .select('*, resource_hours(*)')
+    .select('*, resources(*), resource_hours(*)')
     .eq('id', id)
     .single();
   if (error) throw new Error(error.message);
@@ -48,7 +64,7 @@ export async function fetchPhysicalLocations(): Promise<PhysicalLocationRow[]> {
   const supabase = createSupabaseClient();
   const { data, error } = await supabase
     .from('physical_locations')
-    .select('*, resource_hours(*)')
+    .select('*, resources(*), resource_hours(*)')
     .eq('verification_status', 'approved');
   if (error) throw new Error(error.message);
   return data as PhysicalLocationRow[];

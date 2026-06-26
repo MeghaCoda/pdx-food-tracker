@@ -95,6 +95,7 @@ export type Owner = z.infer<typeof OwnersSchema>;
 export const PhysicalLocationsSchema = z.object({
   id: z.string().uuid(),
   resource_id: z.string().uuid(),
+  name: z.string().nullable().optional(),
   address: z.string().min(1),
   address2: z.string().nullable().optional(),
   city: z.string().min(1),
@@ -272,6 +273,18 @@ export const EditHistorySchema = z.object({
 });
 
 export type EditHistory = z.infer<typeof EditHistorySchema>;
+
+// ============================================================
+// RESOURCE WITH LOCATION (joined view for map)
+// ============================================================
+
+export const ResourceWithLocationSchema = ResourcesSchema.extend({
+  physical_location: PhysicalLocationsSchema.extend({
+    resource_hours: z.array(ResourceHoursSchema.omit({ physical_location_id: true })),
+  }),
+});
+
+export type ResourceWithLocation = z.infer<typeof ResourceWithLocationSchema>;
 
 // ============================================================
 // ARRAY SCHEMAS (for validating lists of records from DB queries)

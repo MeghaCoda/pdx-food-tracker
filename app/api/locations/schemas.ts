@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { PhysicalLocationsSchema, ResourceHoursSchema } from '@/schemas/zodSchema';
 
 export const PhysicalLocationInputSchema = PhysicalLocationsSchema
-  .omit({ id: true, created_at: true })
+  .omit({ id: true, created_at: true, name: true })
   .extend({
     resource_hours: z.array(
       ResourceHoursSchema.omit({ id: true, physical_location_id: true })

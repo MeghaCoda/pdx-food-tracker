@@ -1,15 +1,15 @@
 "use client"
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import LocationMap, { type Location } from "@/components/LocationMap";
-import type { PhysicalLocation } from "@/schemas/zodSchema";
+import LocationMap from "@/components/LocationMap";
+import type { ResourceWithLocation } from "@/schemas/zodSchema";
 import LocationDetails from "../LocationDetails/LocationDetails";
 import SearchBar from "../SearchBar/SearchBar";
 
 const Map = () => {
-    const [selectedItem, setSelectedItem] = useState<PhysicalLocation | undefined>()
+    const [selectedItem, setSelectedItem] = useState<ResourceWithLocation | undefined>()
 
-    const { data: locations = [] } = useQuery<PhysicalLocation[]>({
+    const { data: locations = [] } = useQuery<ResourceWithLocation[]>({
         queryKey: ["locations"],
         queryFn: () => fetch("/api/locations").then((res) => res.json()),
         staleTime: 5 * 60 * 1000,
@@ -27,7 +27,7 @@ const Map = () => {
 
                 <div className="flex-1 min-w-0">
                     <LocationMap
-                        onSelect={(item) => setSelectedItem(item as PhysicalLocation)}
+                        onSelect={(item) => setSelectedItem(item as ResourceWithLocation)}
                         data={locations}
                     />
                 </div>

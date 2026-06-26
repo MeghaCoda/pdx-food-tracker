@@ -1,5 +1,5 @@
-import { PhysicalLocationsSchema } from '@/schemas/zodSchema';
-import type { PhysicalLocation, ResourceHours } from '@/schemas/zodSchema';
+import { ResourceWithLocationSchema } from '@/schemas/zodSchema';
+import type { ResourceWithLocation } from '@/schemas/zodSchema';
 import type { PhysicalLocationRow } from './db';
 import type { PhysicalLocationInput, PhysicalLocationUpdate } from './schemas';
 import {
@@ -12,34 +12,45 @@ import {
   deletePhysicalLocation,
 } from './db';
 
-export type PhysicalLocationWithHours = PhysicalLocation & {
-  resource_hours: Array<Omit<ResourceHours, 'physical_location_id'>>;
-};
-
 function formatLocation(row: PhysicalLocationRow): unknown {
+  const res = row.resources;
   return {
-    id: row.id,
-    resource_id: row.resource_id,
-    address: row.address,
-    address2: row.address2,
-    city: row.city,
-    state: row.state,
-    zip_code: row.zip_code,
-    neighborhood: row.neighborhood,
-    latitude: row.latitude,
-    longitude: row.longitude,
-    phone_number: row.phone_number,
-    verification_status: row.verification_status,
-    created_at: row.created_at,
-    resource_hours: (row.resource_hours ?? []).map((h) => ({
-      id: h.id,
-      day: h.day,
-      opens_at: h.opens_at,
-      closes_at: h.closes_at,
-      notes: h.notes,
-      valid_from: h.valid_from,
-      valid_until: h.valid_until,
-    })),
+    id: row.resource_id,
+    name: res?.name ?? '',
+    description: res?.description ?? null,
+    offer_desc: res?.offer_desc ?? null,
+    offer_source: res?.offer_source ?? null,
+    benefits: res?.benefits ?? null,
+    verification_status: res?.verification_status ?? null,
+    expires_at: res?.expires_at ?? null,
+    is_active: res?.is_active ?? null,
+    created_by: res?.created_by ?? '',
+    created_at: res?.created_at ?? null,
+    updated_at: res?.updated_at ?? null,
+    physical_location: {
+      id: row.id,
+      resource_id: row.resource_id,
+      address: row.address,
+      address2: row.address2,
+      city: row.city,
+      state: row.state,
+      zip_code: row.zip_code,
+      neighborhood: row.neighborhood,
+      latitude: row.latitude,
+      longitude: row.longitude,
+      phone_number: row.phone_number,
+      verification_status: row.verification_status,
+      created_at: row.created_at,
+      resource_hours: (row.resource_hours ?? []).map((h) => ({
+        id: h.id,
+        day: h.day,
+        opens_at: h.opens_at,
+        closes_at: h.closes_at,
+        notes: h.notes,
+        valid_from: h.valid_from,
+        valid_until: h.valid_until,
+      })),
+    },
   };
 }
 
@@ -61,23 +72,23 @@ function inputToRow(data: Partial<PhysicalLocationInput>) {
   };
 }
 
-async function getById(id: string): Promise<PhysicalLocationWithHours> {
+async function getById(id: string): Promise<ResourceWithLocation> {
   const row = await fetchPhysicalLocationById(id);
   const formatted = formatLocation(row);
-  const result = PhysicalLocationsSchema.safeParse(formatted);
+  const result = ResourceWithLocationSchema.safeParse(formatted);
   if (!result.success) {
     throw new Error(`Invalid location data: ${JSON.stringify(result.error.flatten())}`);
   }
-  return formatted as PhysicalLocationWithHours;
+  return result.data;
 }
 
-export async function getLocations(): Promise<PhysicalLocationWithHours[]> {
+export async function getLocations(): Promise<ResourceWithLocation[]> {
   const rows = await fetchPhysicalLocations();
-  return rows.reduce<PhysicalLocationWithHours[]>((acc, row) => {
+  return rows.reduce<ResourceWithLocation[]>((acc, row) => {
     const formatted = formatLocation(row);
-    const result = PhysicalLocationsSchema.safeParse(formatted);
+    const result = ResourceWithLocationSchema.safeParse(formatted);
     if (result.success) {
-      acc.push(formatted as PhysicalLocationWithHours);
+      acc.push(result.data);
     } else {
       console.error(`Invalid location ${row.id}:`, result.error.flatten());
     }
@@ -87,7 +98,7 @@ export async function getLocations(): Promise<PhysicalLocationWithHours[]> {
 
 export async function createLocation(
   data: PhysicalLocationInput
-): Promise<PhysicalLocationWithHours> {
+): Promise<ResourceWithLocation> {
   const { resource_hours, ...locationData } = data;
   const loc = await insertPhysicalLocation(
     inputToRow(locationData) as Parameters<typeof insertPhysicalLocation>[0]
@@ -111,7 +122,7 @@ export async function createLocation(
 export async function updateLocation(
   id: string,
   data: PhysicalLocationUpdate
-): Promise<PhysicalLocationWithHours> {
+): Promise<ResourceWithLocation> {
   const { resource_hours, ...locationData } = data;
   await updatePhysicalLocationRow(id, inputToRow(locationData));
 

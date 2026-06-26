@@ -13,10 +13,13 @@ import { useEffect } from "react";
 
 export interface Location {
   id: string;
-  address: string;
-  address2?: string | null;
-  latitude?: number | null;
-  longitude?: number | null;
+  physical_location: {
+    id: string;
+    address: string;
+    address2?: string | null;
+    latitude?: number | null;
+    longitude?: number | null;
+  };
 }
 
 delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)._getIconUrl;
@@ -59,8 +62,8 @@ interface ResourceMapProps<T extends Location> {
   data: T[];
 }
 
-function hasCoordinates<T extends Location>(item: T): item is T & { latitude: number; longitude: number } {
-  return item.latitude != null && item.longitude != null;
+function hasCoordinates<T extends Location>(item: T): item is T & { physical_location: { latitude: number; longitude: number } } {
+  return item.physical_location.latitude != null && item.physical_location.longitude != null;
 }
 
 function ResourceMap<T extends Location>({ onSelect, data }: ResourceMapProps<T>) {
@@ -74,15 +77,15 @@ function ResourceMap<T extends Location>({ onSelect, data }: ResourceMapProps<T>
           <GeolocationController />
           <MarkerClusterGroup>
             {data.filter(hasCoordinates).map(item => (
-                <Marker key={item.id} position={[item.latitude, item.longitude]}
+                <Marker key={item.physical_location.id} position={[item.physical_location.latitude, item.physical_location.longitude]}
                 eventHandlers={{
                   click: () => {
                     onSelect(item);
                   }
                 }}>
                   <Popup>
-                    <p>{item.address}</p>
-                    {item.address2 && <p>{item.address2}</p>}
+                    <p>{item.physical_location.address}</p>
+                    {item.physical_location.address2 && <p>{item.physical_location.address2}</p>}
                   </Popup>
                 </Marker>
             ))}

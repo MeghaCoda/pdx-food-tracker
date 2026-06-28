@@ -9,9 +9,17 @@ import dynamic from 'next/dynamic'
 const LocationMap = dynamic(() => import('@/components/LocationMap/LocationMap'), { ssr: false })
 import type { ResourceWithLocation } from '@/schemas/zodSchema'
 import { FILTER_CHIPS, API_ROUTES } from '@/lib/constants'
+import { TabBar } from '@/components/ui/TabBar'
+import { FilterChip } from '@/components/ui/FilterChip'
+import { ResultListItem } from '@/components/ui/ResultListItem'
 import { LIST_LABEL, MAP_LABEL, LOADING_RESOURCES } from './constants'
 
 type View = 'list' | 'map'
+
+const TABS = [
+  { value: 'list', label: LIST_LABEL, icon: <IconList size={15} stroke={1.5} /> },
+  { value: 'map',  label: MAP_LABEL,  icon: <IconMap2 size={15} stroke={1.5} /> },
+] satisfies { value: string; label: string; icon: React.ReactNode }[]
 
 export function MapResultsPage() {
   const searchParams = useSearchParams()
@@ -49,57 +57,29 @@ export function MapResultsPage() {
   return (
     <div className="flex flex-col flex-1 min-h-0 bg-surface-0">
       {/* Mobile-only: List/Map segmented toggle */}
-      <div className="flex md:hidden border-b border-border">
-        <button
-          type="button"
-          onClick={() => setView('list')}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-medium transition-colors border-b-2 ${
-            view === 'list'
-              ? 'text-text-primary border-text-primary'
-              : 'text-text-muted'
-          }`}
-        >
-          <IconList size={15} stroke={1.5} />
-          {LIST_LABEL}
-        </button>
-        <button
-          type="button"
-          onClick={() => setView('map')}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-medium transition-colors border-b-2 ${
-            view === 'map'
-              ? 'text-text-primary border-text-primary'
-              : 'text-text-muted'
-          }`}
-        >
-          <IconMap2 size={15} stroke={1.5} />
-          {MAP_LABEL}
-        </button>
-      </div>
+      <TabBar
+        tabs={TABS}
+        activeTab={view}
+        onTabChange={(v) => setView(v as View)}
+        className="md:hidden"
+      />
 
       {/* Filter chip row — horizontal scroll */}
       <div className="flex gap-2 overflow-x-auto px-4 py-2.5 border-b border-border [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
-        {FILTER_CHIPS.map((chip) => {
-          const active = isChipActive(chip.key, chip.value)
-          return (
-            <button
-              key={`${chip.key}-${chip.value}`}
-              type="button"
-              onClick={() => toggleChip(chip.key, chip.value)}
-              className={`shrink-0 px-3 py-1 rounded-full text-sm font-medium border transition-colors cursor-pointer ${
-                active
-                  ? 'bg-primary border-primary'
-                  : 'bg-surface-1 border-border text-text-secondary hover:border-primary'
-              }`}
-            >
-              {chip.label}
-            </button>
-          )
-        })}
+        {FILTER_CHIPS.map((chip) => (
+          <FilterChip
+            key={`${chip.key}-${chip.value}`}
+            label={chip.label}
+            selected={isChipActive(chip.key, chip.value)}
+            onClick={() => toggleChip(chip.key, chip.value)}
+            compact
+          />
+        ))}
       </div>
 
       {/* Content area */}
       <div className="flex flex-1 min-h-0">
-        {/* List panel — hidden on mobile when map view active; always visible on desktop */}
+        {/* List panel */}
         <aside
           className={`${view === 'list' ? 'flex' : 'hidden'} md:flex flex-col w-full md:w-80 md:flex-shrink-0 overflow-y-auto md:border-r md:border-border`}
         >
@@ -109,30 +89,20 @@ export function MapResultsPage() {
             </p>
           )}
           {locations.map((item) => (
-            <div
+            <ResultListItem
               key={item.id}
+              name={item.name}
+              address={[item.physical_location.address, item.physical_location.address2].filter(Boolean).join(', ')}
+              description={item.description ?? undefined}
+              selected={selectedId === item.id}
+              onClick={() => setSelectedId(item.id)}
               onMouseEnter={() => setSelectedId(item.id)}
               onMouseLeave={() => setSelectedId(null)}
-              onClick={() => setSelectedId(item.id)}
-              className={`px-4 py-3 border-b border-border cursor-pointer transition-colors bg-surface-1 ${
-                selectedId === item.id ? 'bg-accent' : 'hover:bg-accent/50'
-              }`}
-            >
-              <p className="font-medium text-sm leading-tight text-text-primary">{item.name}</p>
-              <p className="text-xs text-text-muted mt-0.5">
-                {item.physical_location.address}
-                {item.physical_location.address2 && `, ${item.physical_location.address2}`}
-              </p>
-              {item.description && (
-                <p className="text-xs text-text-muted mt-1 line-clamp-2">
-                  {item.description}
-                </p>
-              )}
-            </div>
+            />
           ))}
         </aside>
 
-        {/* Map panel — hidden on mobile when list view active; always visible on desktop */}
+        {/* Map panel */}
         <div
           className={`${view === 'map' ? 'flex' : 'hidden'} md:flex flex-1 min-w-0`}
         >

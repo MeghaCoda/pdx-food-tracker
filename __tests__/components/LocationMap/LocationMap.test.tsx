@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
-import { mockLocation } from '@/__mocks__/mockData'
+import { mockResourceWithLocation } from '@/__mocks__/mockData'
 
 vi.mock('leaflet/dist/leaflet.css', () => ({}))
 
@@ -62,7 +62,7 @@ describe('ResourceMap', () => {
   })
 
   it('renders a marker for each location', () => {
-    render(<ResourceMap onSelect={vi.fn()} data={[mockLocation, mockLocation]} />)
+    render(<ResourceMap onSelect={vi.fn()} data={[mockResourceWithLocation, mockResourceWithLocation]} />)
     expect(screen.getAllByTestId('marker')).toHaveLength(2)
   })
 
@@ -73,19 +73,19 @@ describe('ResourceMap', () => {
 
   it('calls onSelect with the location when a marker is clicked', () => {
     const onSelect = vi.fn()
-    render(<ResourceMap onSelect={onSelect} data={[mockLocation]} />)
+    render(<ResourceMap onSelect={onSelect} data={[mockResourceWithLocation]} />)
     fireEvent.click(screen.getByTestId('marker'))
-    expect(onSelect).toHaveBeenCalledWith(mockLocation)
+    expect(onSelect).toHaveBeenCalledWith(mockResourceWithLocation)
   })
 
   it('renders the location name in the popup', () => {
-    render(<ResourceMap onSelect={vi.fn()} data={[mockLocation]} />)
+    render(<ResourceMap onSelect={vi.fn()} data={[mockResourceWithLocation]} />)
     expect(screen.getByTestId('popup')).toBeInTheDocument()
   })
 
   it('renders location address in the popup', () => {
-    render(<ResourceMap onSelect={vi.fn()} data={[mockLocation]} />)
-    expect(screen.getByText(mockLocation.address)).toBeInTheDocument()
+    render(<ResourceMap onSelect={vi.fn()} data={[mockResourceWithLocation]} />)
+    expect(screen.getByText(mockResourceWithLocation.physical_location.address)).toBeInTheDocument()
   })
 })
 

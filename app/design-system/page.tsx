@@ -9,6 +9,8 @@ import { CtaBar } from '@/components/ui/CtaBar'
 import { TabBar } from '@/components/ui/TabBar'
 import { ResultListItem } from '@/components/ui/ResultListItem'
 import { StatusBadge } from '@/components/ui/StatusBadge'
+import { FilterDrawer } from '@/components/ui/FilterDrawer'
+import { useSearchFilters } from '@/store/searchFilters'
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -59,7 +61,9 @@ function useToggleSet(initial: string[] = []) {
       return next
     })
   }
-  return { has: (v: string) => set.has(v), toggle, arr: Array.from(set) }
+  function clear() { setSet(new Set()) }
+  function replace(values: string[]) { setSet(new Set(values)) }
+  return { has: (v: string) => set.has(v), toggle, clear, replace, arr: Array.from(set) }
 }
 
 // ─── Color swatch ──────────────────────────────────────────────────────────────
@@ -83,6 +87,10 @@ export default function DesignSystemPage() {
   const chipDemo = useToggleSet(['free'])
   const [tab, setTab] = useState('list')
   const [selectedResult, setSelectedResult] = useState<string | null>(null)
+
+  // FilterDrawer demo
+  const [drawerOpen, setDrawerOpen] = useState(false)
+  const { reset: resetFilters } = useSearchFilters()
 
   const anyoneSelected = eligibility.has('anyone')
 
@@ -408,6 +416,36 @@ export default function DesignSystemPage() {
         </Row>
       </Section>
 
+      {/* ── FilterDrawer ──────────────────────────────────────────── */}
+      <Section
+        title="FilterDrawer"
+        note="Full-screen overlay drawer with a two-column layout: category list on the left, filter options on the right. Footer has 'Clear filters' on the left and 'Search' on the right."
+      >
+        <AppBg>
+          <button
+            type="button"
+            onClick={() => setDrawerOpen(true)}
+            className="px-5 py-2.5 rounded-full text-sm font-semibold text-text-inverse bg-primary hover:bg-primary-hover transition-colors"
+          >
+            Open filter drawer
+          </button>
+        </AppBg>
+        <Row>
+          <Item>
+            <Label>Category label</Label>
+            <Token>w-28 / 11px / uppercase / tracking-widest / text-text-muted</Token>
+          </Item>
+          <Item>
+            <Label>Chips</Label>
+            <Token>compact FilterChip — all categories visible at once</Token>
+          </Item>
+          <Item>
+            <Label>Footer</Label>
+            <Token>border-t border-border, space-between</Token>
+          </Item>
+        </Row>
+      </Section>
+
       {/* ── Radius scale ──────────────────────────────────────────── */}
       <Section title="Radius scale">
         <Row>
@@ -427,6 +465,12 @@ export default function DesignSystemPage() {
           ))}
         </Row>
       </Section>
+      <FilterDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        onSearch={() => setDrawerOpen(false)}
+        onClearFilters={resetFilters}
+      />
     </div>
   )
 }

@@ -11,6 +11,8 @@ interface FilterChipProps {
   fullWidth?: boolean
   /** Override classes for the selected state (defaults to primary) */
   selectedClassName?: string
+  /** Override background class for the checkbox when selected — should match the chip's selected background */
+  selectedCheckboxClassName?: string
   className?: string
 }
 
@@ -21,6 +23,7 @@ export function FilterChip({
   compact = false,
   fullWidth = false,
   selectedClassName = 'bg-primary border-primary text-text-inverse',
+  selectedCheckboxClassName = 'bg-transparent',
   className,
 }: FilterChipProps) {
   return (
@@ -40,13 +43,22 @@ export function FilterChip({
       {!compact && (
         <span
           className={cn(
-            'inline-flex shrink-0 w-4 h-4 rounded-[3px] border-[1.5px]',
-            selected ? 'border-text-inverse' : 'border-border'
+            'inline-flex shrink-0 items-center justify-center w-4 h-4 rounded-[3px] border-[1.5px]',
+            selected ? cn('border-text-inverse', selectedCheckboxClassName) : 'border-border'
           )}
           aria-hidden
-        />
+        >
+          {selected && (
+            <svg width="9" height="7" viewBox="0 0 9 7" fill="none">
+              <path d="M1 3.5L3 5.5L8 1" stroke="white" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          )}
+        </span>
       )}
       {label}
+      {compact && (
+        <span className={cn('text-sm leading-none', !selected && 'opacity-0')} aria-hidden>✕</span>
+      )}
     </button>
   )
 }

@@ -1,7 +1,13 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useSearchFilters, type FilterKey } from '@/store/searchFilters'
+import {
+  useSearchFilters,
+  PRICE_OPTIONS,
+  FOOD_TYPE_OPTIONS,
+  ACCESS_OPTIONS,
+  ELIGIBILITY_OPTIONS,
+} from '@/store/searchFilters'
 import { ROUTES } from '@/lib/constants'
 import { FilterChip } from '@/components/ui/FilterChip'
 import { FilterSection } from '@/components/ui/FilterSection'
@@ -13,34 +19,15 @@ import {
   SUBMIT_LABEL,
   SUBMIT_SUFFIX,
   FILTER_SECTION_LABELS,
-  TOGGLE_LABELS,
-  ELIGIBILITY_OPTIONS,
 } from './constants'
 
 export default function SearchPage() {
   const router = useRouter()
-  const { price, foodType, accessType, eligibility, toggle, toParams } = useSearchFilters()
-
-  function handleToggle(key: FilterKey, value: string) {
-    toggle(key, value)
-  }
+  const { price, foodType, accessType, eligibility, toggle, toggleEligibility, toParams } = useSearchFilters()
 
   function handleSubmit() {
     const params = toParams()
-    router.push(`${ROUTES.MAP}?${params.toString()}`)
-  }
-
-  const anyoneSelected = eligibility.includes('anyone')
-
-  function handleEligibilityToggle(value: string) {
-    if (value === 'anyone') {
-      toggle('eligibility', 'anyone')
-      return
-    }
-    if (anyoneSelected) {
-      toggle('eligibility', 'anyone')
-    }
-    toggle('eligibility', value)
+    router.push(`${ROUTES.RESULTS}?${params.toString()}`)
   }
 
   return (
@@ -55,56 +42,44 @@ export default function SearchPage() {
         {/* Price */}
         <FilterSection label={FILTER_SECTION_LABELS.PRICE}>
           <div className="flex gap-3">
-            <FilterChip
-              label={TOGGLE_LABELS.FREE}
-              selected={price.includes('free')}
-              onClick={() => handleToggle('price', 'free')}
-              selectedClassName="bg-success border-success text-text-inverse"
-              fullWidth
-            />
-            <FilterChip
-              label={TOGGLE_LABELS.DISCOUNT}
-              selected={price.includes('discount')}
-              onClick={() => handleToggle('price', 'discount')}
-              fullWidth
-            />
+            {PRICE_OPTIONS.map(({ value, label, selectedClassName }) => (
+              <FilterChip
+                key={value}
+                label={label}
+                selected={price.includes(value)}
+                onClick={() => toggle('price', value)}
+                selectedClassName={selectedClassName}
+                fullWidth
+              />
+            ))}
           </div>
         </FilterSection>
 
         {/* Food Type */}
         <FilterSection label={FILTER_SECTION_LABELS.FOOD_TYPE}>
           <div className="flex flex-wrap gap-2">
-            <FilterChip
-              label={TOGGLE_LABELS.PREPARED}
-              selected={foodType.includes('prepared')}
-              onClick={() => handleToggle('foodType', 'prepared')}
-            />
-            <FilterChip
-              label={TOGGLE_LABELS.GROCERIES}
-              selected={foodType.includes('groceries')}
-              onClick={() => handleToggle('foodType', 'groceries')}
-            />
-            <FilterChip
-              label={TOGGLE_LABELS.RESTAURANT}
-              selected={foodType.includes('restaurant')}
-              onClick={() => handleToggle('foodType', 'restaurant')}
-            />
+            {FOOD_TYPE_OPTIONS.map(({ value, label }) => (
+              <FilterChip
+                key={value}
+                label={label}
+                selected={foodType.includes(value)}
+                onClick={() => toggle('foodType', value)}
+              />
+            ))}
           </div>
         </FilterSection>
 
         {/* How you get it */}
         <FilterSection label={FILTER_SECTION_LABELS.HOW_YOU_GET_IT}>
           <div className="flex flex-wrap gap-2">
-            <FilterChip
-              label={TOGGLE_LABELS.PICKUP}
-              selected={accessType.includes('pickup')}
-              onClick={() => handleToggle('accessType', 'pickup')}
-            />
-            <FilterChip
-              label={TOGGLE_LABELS.DELIVERY}
-              selected={accessType.includes('delivery')}
-              onClick={() => handleToggle('accessType', 'delivery')}
-            />
+            {ACCESS_OPTIONS.map(({ value, label }) => (
+              <FilterChip
+                key={value}
+                label={label}
+                selected={accessType.includes(value)}
+                onClick={() => toggle('accessType', value)}
+              />
+            ))}
           </div>
         </FilterSection>
 
@@ -112,10 +87,10 @@ export default function SearchPage() {
         <EligibilityCard
           sectionLabel={FILTER_SECTION_LABELS.ELIGIBILITY}
           anyoneLabel={ANYONE_LABEL}
-          options={ELIGIBILITY_OPTIONS}
+          options={ELIGIBILITY_OPTIONS.filter((o) => o.value !== 'anyone')}
           selected={eligibility}
-          anyoneSelected={anyoneSelected}
-          onToggle={handleEligibilityToggle}
+          anyoneSelected={eligibility.includes('anyone')}
+          onToggle={toggleEligibility}
         />
       </div>
 

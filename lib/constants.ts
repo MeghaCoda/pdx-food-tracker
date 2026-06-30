@@ -21,8 +21,8 @@ export const FILTER_CHIPS = [
 export const ROUTES = {
   HOME: '/',
   AUTH: '/auth',
-  MAP: '/map',
-  MAP_OPEN_NOW: '/map?openNow=true',
+  RESULTS: '/results',
+  RESULTS_OPEN_NOW: '/results?openNow=true',
 } as const;
 
 export const API_ROUTES = {

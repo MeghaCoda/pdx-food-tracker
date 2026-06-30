@@ -17,6 +17,7 @@ export const BenefitCategorySchema = z.enum([
   "coupon",
   "free_breakfast",
   "other",
+  "military_discount",
 ]);
 
 export const SubmissionStatusSchema = z.enum(["pending", "approved", "rejected"]);
@@ -102,8 +103,8 @@ export const PhysicalLocationsSchema = z.object({
   state: z.string().min(1),
   zip_code: z.string().min(5).max(10),
   neighborhood: z.string().nullable().optional(),
-  latitude: z.number().nullable().optional(),
-  longitude: z.number().nullable().optional(),
+  latitude: z.number(),
+  longitude: z.number(),
   phone_number: z.string().nullable().optional(),
   verification_status: SubmissionStatusSchema.nullable().optional(),
   created_at: z.string().datetime({ offset: true }).nullable().optional(),

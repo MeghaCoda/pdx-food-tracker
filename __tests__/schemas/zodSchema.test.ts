@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import {
+  BenefitCategorySchema,
   PhysicalLocationsSchema,
+  ResourcesSchema,
   VerificationEventsSchema,
 } from '@/schemas/zodSchema'
 import type { VerificationEvent } from '@/schemas/zodSchema'
@@ -55,12 +57,18 @@ describe('PhysicalLocationsSchema', () => {
       ...mockLocation,
       address2: null,
       neighborhood: null,
-      latitude: null,
-      longitude: null,
       phone_number: null,
       verification_status: null,
       created_at: null,
     }).success).toBe(true)
+  })
+
+  it('rejects null latitude', () => {
+    expect(PhysicalLocationsSchema.safeParse({ ...mockLocation, latitude: null }).success).toBe(false)
+  })
+
+  it('rejects null longitude', () => {
+    expect(PhysicalLocationsSchema.safeParse({ ...mockLocation, longitude: null }).success).toBe(false)
   })
 
   it('accepts optional fields when provided', () => {
@@ -149,6 +157,75 @@ describe('PhysicalLocationUpdateSchema', () => {
   it('accepts partial update with resource_hours', () => {
     const result = PhysicalLocationUpdateSchema.safeParse({
       resource_hours: [{ day: 'tuesday', opens_at: '09:00', closes_at: '18:00' }],
+    })
+    expect(result.success).toBe(true)
+  })
+})
+
+// ─── BenefitCategorySchema — missing enum values (schema gaps) ───────────────
+//
+// The following four values are required by planned filter chips but are NOT yet
+// present in BenefitCategorySchema or in the Supabase DB enum.
+// These tests FAIL until the schema and DB migration are updated.
+
+describe('BenefitCategorySchema — missing values (GAP: schema not yet updated)', () => {
+  it('accepts "prepared" as a benefit category', () => {
+    // GAP: needed for the "Prepared" filter chip (hot/prepared meals)
+    expect(BenefitCategorySchema.safeParse('prepared').success).toBe(true)
+  })
+
+  it('accepts "groceries" as a benefit category', () => {
+    // GAP: needed for the "Groceries" filter chip (pantry/market/packaged food)
+    expect(BenefitCategorySchema.safeParse('groceries').success).toBe(true)
+  })
+
+  it('accepts "restaurant" as a benefit category', () => {
+    // GAP: needed for the "Restaurant" filter chip (eat-in restaurant deals)
+    expect(BenefitCategorySchema.safeParse('restaurant').success).toBe(true)
+  })
+
+  it('accepts "military_discount" as a benefit category', () => {
+    // GAP: military discounts are a real benefit type with no current schema support
+    expect(BenefitCategorySchema.safeParse('military_discount').success).toBe(true)
+  })
+
+  it('accepts a resource whose benefits array contains "prepared"', () => {
+    // GAP: ResourcesSchema rejects benefits arrays containing unknown enum values
+    const result = ResourcesSchema.safeParse({
+      id: MOCK_RESOURCE_ID,
+      name: 'Hot Meals Hub',
+      created_by: MOCK_RESOURCE_ID,
+      benefits: ['prepared'],
+    })
+    expect(result.success).toBe(true)
+  })
+
+  it('accepts a resource whose benefits array contains "groceries"', () => {
+    const result = ResourcesSchema.safeParse({
+      id: MOCK_RESOURCE_ID,
+      name: 'Grocery Pantry',
+      created_by: MOCK_RESOURCE_ID,
+      benefits: ['groceries'],
+    })
+    expect(result.success).toBe(true)
+  })
+
+  it('accepts a resource whose benefits array contains "restaurant"', () => {
+    const result = ResourcesSchema.safeParse({
+      id: MOCK_RESOURCE_ID,
+      name: 'Community Diner',
+      created_by: MOCK_RESOURCE_ID,
+      benefits: ['restaurant'],
+    })
+    expect(result.success).toBe(true)
+  })
+
+  it('accepts a resource whose benefits array contains "military_discount"', () => {
+    const result = ResourcesSchema.safeParse({
+      id: MOCK_RESOURCE_ID,
+      name: 'Veterans Discount Grocer',
+      created_by: MOCK_RESOURCE_ID,
+      benefits: ['military_discount'],
     })
     expect(result.success).toBe(true)
   })

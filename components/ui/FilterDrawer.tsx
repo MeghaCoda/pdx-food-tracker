@@ -64,7 +64,7 @@ export function FilterDrawer({
         aria-modal="true"
         aria-label="Filters"
         className={cn(
-          'fixed inset-y-0 left-0 z-50 flex flex-col w-full max-w-sm bg-surface-1 shadow-2xl',
+          'fixed inset-y-0 left-0 z-50 flex flex-col w-full md:max-w-sm bg-surface-1 shadow-2xl',
           className
         )}
       >

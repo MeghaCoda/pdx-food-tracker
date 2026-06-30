@@ -432,12 +432,12 @@ INSERT INTO physical_locations (
    'Enter through the main gymnasium doors.',
    user_3_id, now() - interval '365 days'),
 
-  -- r10 location: no lat/lon
+  -- r10 location: Kenton Hub
   (pl11_id, r10_id,
    '2135 N Killingsworth St', NULL,
    'Portland', 'OR', '97217',
    'Kenton',
-   NULL, NULL, -- EDGE: latitude/longitude NULL
+   45.5601, -122.6929,
    '(503) 555-1010',
    'approved', NULL,
    user_3_id, now() - interval '500 days'),

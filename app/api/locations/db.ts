@@ -37,8 +37,8 @@ export type PhysicalLocationRow = {
   state: string;
   zip_code: string;
   neighborhood: string | null;
-  latitude: number | null;
-  longitude: number | null;
+  latitude: number;
+  longitude: number;
   phone_number: string | null;
   verification_status: 'pending' | 'approved' | 'rejected' | null;
   created_at: string | null;
@@ -46,7 +46,7 @@ export type PhysicalLocationRow = {
   resource_hours: ResourceHoursRow[];
 };
 
-type PhysicalLocationInsert = Omit<PhysicalLocationRow, 'id' | 'created_at' | 'resource_hours'>;
+type PhysicalLocationInsert = Omit<PhysicalLocationRow, 'id' | 'created_at' | 'resource_hours' | 'resources'>;
 type ResourceHoursInsert = Omit<ResourceHoursRow, 'id'>;
 
 export async function fetchPhysicalLocationById(id: string): Promise<PhysicalLocationRow> {

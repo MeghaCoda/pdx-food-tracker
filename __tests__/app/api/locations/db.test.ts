@@ -102,8 +102,8 @@ describe('insertPhysicalLocation', () => {
       zip_code: '97201',
       address2: null,
       neighborhood: null,
-      latitude: null,
-      longitude: null,
+      latitude: 45.523,
+      longitude: -122.6765,
       phone_number: null,
       verification_status: null,
     })

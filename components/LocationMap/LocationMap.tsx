@@ -64,8 +64,12 @@ function GeolocationController() {
       (pos) => {
         if (!active) return;
         const { latitude, longitude } = pos.coords;
-        if (!isFinite(latitude) || !isFinite(longitude)) return;
-        map.flyTo([latitude, longitude], USER_ZOOM, { animate: true, duration: 1.5 });
+        if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return;
+        try {
+          map.flyTo([latitude, longitude], USER_ZOOM, { animate: true, duration: 1.5 });
+        } catch {
+          // no-op: map may not be ready yet
+        }
       },
       (err) => {
         console.warn("Geolocation unavailable:", err.message);
@@ -87,7 +91,7 @@ interface ResourceMapProps<T extends Location> {
 }
 
 function hasCoordinates<T extends Location>(item: T): item is T & { physical_location: { latitude: number; longitude: number } } {
-  return item.physical_location.latitude != null && item.physical_location.longitude != null;
+  return Number.isFinite(item.physical_location.latitude) && Number.isFinite(item.physical_location.longitude);
 }
 
 function ResourceMap<T extends Location>({ onSelect, data, selectedId }: ResourceMapProps<T>) {

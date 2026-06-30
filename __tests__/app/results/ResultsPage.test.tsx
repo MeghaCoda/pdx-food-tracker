@@ -82,7 +82,7 @@ const PL12_ID = '00000000-0000-4000-8000-000000000041'
 const PL13_ID = '00000000-0000-4000-8000-000000000042'
 const PL16_ID = '00000000-0000-4000-8000-000000000044'
 
-type MakeOpts = Partial<ResourceWithLocation> & {
+type MakeOpts = Omit<Partial<ResourceWithLocation>, 'physical_location'> & {
   physical_location?: Partial<ResourceWithLocation['physical_location']>
 }
 
@@ -328,11 +328,7 @@ const r9_breakfast = makeResource(R9_ID, 'St. Johns Free Breakfast Club', PL10_I
   },
 })
 
-// ── r10: Kenton Community Services Hub — other, NO lat/lon ────────────────────
-//
-// GAP: No lat/lon means this location cannot be rendered as a map marker.
-// The map view should handle this gracefully (skip the marker, or show a
-// "location unavailable" indicator). Currently untested.
+// ── r10: Kenton Community Services Hub — other ────────────────────────────────
 const r10_other = makeResource(R10_ID, 'Kenton Community Services Hub', PL11_ID, {
   benefits: ['other'],
   physical_location: {
@@ -341,8 +337,8 @@ const r10_other = makeResource(R10_ID, 'Kenton Community Services Hub', PL11_ID,
     state: 'OR',
     zip_code: '97217',
     neighborhood: 'Kenton',
-    latitude: null,
-    longitude: null,
+    latitude: 45.5601,
+    longitude: -122.6929,
     phone_number: '(503) 555-1010',
     resource_hours: [
       { id: 'h11a', day: 'monday',    opens_at: '09:00', closes_at: '17:00', notes: null, valid_from: null, valid_until: null },

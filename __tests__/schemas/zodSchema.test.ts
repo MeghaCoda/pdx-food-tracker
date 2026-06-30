@@ -57,12 +57,18 @@ describe('PhysicalLocationsSchema', () => {
       ...mockLocation,
       address2: null,
       neighborhood: null,
-      latitude: null,
-      longitude: null,
       phone_number: null,
       verification_status: null,
       created_at: null,
     }).success).toBe(true)
+  })
+
+  it('rejects null latitude', () => {
+    expect(PhysicalLocationsSchema.safeParse({ ...mockLocation, latitude: null }).success).toBe(false)
+  })
+
+  it('rejects null longitude', () => {
+    expect(PhysicalLocationsSchema.safeParse({ ...mockLocation, longitude: null }).success).toBe(false)
   })
 
   it('accepts optional fields when provided', () => {

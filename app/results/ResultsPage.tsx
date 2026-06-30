@@ -7,8 +7,10 @@ import { IconList, IconMap2 } from '@tabler/icons-react'
 import dynamic from 'next/dynamic'
 import type { ResourceWithLocation } from '@/schemas/zodSchema'
 import { FILTER_CHIPS, API_ROUTES } from '@/lib/constants'
+import { useSearchFilters } from '@/store/searchFilters'
 import { TabBar } from '@/components/ui/TabBar'
 import { FilterChip } from '@/components/ui/FilterChip'
+import { FilterDrawer } from '@/components/ui/FilterDrawer'
 import { ResultListItem } from '@/components/ui/ResultListItem'
 import { LIST_LABEL, MAP_LABEL, LOADING_RESOURCES } from './constants'
 
@@ -27,6 +29,8 @@ export function ResultsPage() {
   const pathname = usePathname()
   const [view, setView] = useState<View>('list')
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [drawerOpen, setDrawerOpen] = useState(false)
+  const { reset, toParams } = useSearchFilters()
 
   const { data: locations = [] } = useQuery<ResourceWithLocation[]>({
     queryKey: ['locations'],
@@ -67,17 +71,24 @@ export function ResultsPage() {
         className="md:hidden"
       />
 
-      {/* Filter chip row — horizontal scroll */}
+      {/* Filter chip row — horizontal scroll, only active selections */}
       <div className="flex gap-2 overflow-x-auto px-4 py-2.5 border-b border-border [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
-        {FILTER_CHIPS.map((chip) => (
+        {FILTER_CHIPS.filter((chip) => isChipActive(chip.key, chip.value)).map((chip) => (
           <FilterChip
             key={`${chip.key}-${chip.value}`}
             label={chip.label}
-            selected={isChipActive(chip.key, chip.value)}
+            selected
             onClick={() => toggleChip(chip.key, chip.value)}
             compact
+            selectedClassName="bg-surface-1 border-primary text-text-primary"
           />
         ))}
+        <FilterChip
+          label="More +"
+          selected={false}
+          onClick={() => setDrawerOpen(true)}
+          compact
+        />
       </div>
 
       {/* Content area */}
@@ -107,7 +118,7 @@ export function ResultsPage() {
 
         {/* Map panel */}
         <div
-          className={`${view === 'map' ? 'flex' : 'hidden'} md:flex flex-1 min-w-0`}
+          className={`${view === 'map' ? 'flex' : 'hidden'} md:flex flex-1 min-w-0 isolate`}
         >
           <LocationMap
             data={locations}
@@ -116,6 +127,19 @@ export function ResultsPage() {
           />
         </div>
       </div>
+
+      <FilterDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        onSearch={() => {
+          setDrawerOpen(false)
+          router.push(`${pathname}?${toParams().toString()}`)
+        }}
+        onClearFilters={() => {
+          reset()
+          router.push(pathname)
+        }}
+      />
     </div>
   )
 }
